@@ -151,6 +151,8 @@ const detailContent = document.getElementById("detailContent");
 const exceptionsList = document.getElementById("exceptionsList");
 const batchList = document.getElementById("batchList");
 const searchInput = document.getElementById("searchInput");
+const renewalsOverTimeChart = document.getElementById("renewalsOverTimeChart");
+const dueForRenewalsChart = document.getElementById("dueForRenewalsChart");
 
 function getBadgeClass(status) {
   if (status === "Blocked") return "blocked";
@@ -320,6 +322,98 @@ function renderBatches() {
   });
 }
 
+
+
+function monthLabel(dateString) {
+  const date = new Date(dateString);
+  return date.toLocaleDateString("en-GB", { month: "short", year: "2-digit" });
+}
+
+function daysUntil(dateString) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const target = new Date(dateString);
+  target.setHours(0, 0, 0, 0);
+  return Math.ceil((target - today) / (1000 * 60 * 60 * 24));
+}
+
+function renderBarChart(container, entries, barClass) {
+  if (!container) return;
+
+  container.innerHTML = "";
+
+  if (!entries.length) {
+    container.innerHTML = '<p class="muted">No data available.</p>';
+    return;
+  }
+
+  const maxValue = Math.max(...entries.map((entry) => entry.value), 1);
+
+  entries.forEach((entry) => {
+    const group = document.createElement("div");
+    group.className = "bar-group";
+
+    const wrap = document.createElement("div");
+    wrap.className = "bar-wrap";
+
+    const bar = document.createElement("div");
+    bar.className = `bar ${barClass}`;
+    bar.style.height = `${Math.max((entry.value / maxValue) * 160, 8)}px`;
+    bar.title = `${entry.label}: ${entry.value}`;
+
+    const value = document.createElement("span");
+    value.className = "bar-value";
+    value.textContent = entry.value;
+
+    const label = document.createElement("div");
+    label.className = "bar-label";
+    label.textContent = entry.label;
+
+    bar.appendChild(value);
+    wrap.appendChild(bar);
+    group.appendChild(wrap);
+    group.appendChild(label);
+    container.appendChild(group);
+  });
+}
+
+function renderRenewalsOverTimeChart() {
+  const totalsByMonth = renewals.reduce((acc, renewal) => {
+    const label = monthLabel(renewal.renewalDate);
+    acc[label] = (acc[label] || 0) + 1;
+    return acc;
+  }, {});
+
+  const chartData = Object.entries(totalsByMonth)
+    .map(([label, value]) => ({ label, value }))
+    .sort((a, b) => {
+      const [aMonth, aYear] = a.label.split(" ");
+      const [bMonth, bYear] = b.label.split(" ");
+      return new Date(`01 ${aMonth} 20${aYear}`) - new Date(`01 ${bMonth} 20${bYear}`);
+    });
+
+  renderBarChart(renewalsOverTimeChart, chartData, "bar-primary");
+}
+
+function renderDueForRenewalsChart() {
+  const buckets = [
+    { label: "0-7d", value: 0 },
+    { label: "8-14d", value: 0 },
+    { label: "15-30d", value: 0 },
+    { label: "31+d", value: 0 }
+  ];
+
+  renewals.forEach((renewal) => {
+    const days = daysUntil(renewal.renewalDate);
+    if (days <= 7) buckets[0].value += 1;
+    else if (days <= 14) buckets[1].value += 1;
+    else if (days <= 30) buckets[2].value += 1;
+    else buckets[3].value += 1;
+  });
+
+  renderBarChart(dueForRenewalsChart, buckets, "bar-secondary");
+}
+
 function switchView(viewName) {
   document.querySelectorAll(".view").forEach((view) => {
     view.classList.remove("active-view");
@@ -375,3 +469,5 @@ searchInput.addEventListener("input", (event) => {
 renderRenewals();
 renderExceptions();
 renderBatches();
+renderRenewalsOverTimeChart();
+renderDueForRenewalsChart();
