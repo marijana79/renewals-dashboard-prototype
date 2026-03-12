@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Renewals Dashboard Prototype</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="logo">Mobius</div>
+      <nav class="nav">
+        <button class="nav-item active" data-view="overview">Overview</button>
+        <button class="nav-item" data-view="exceptions">Exceptions</button>
+        <button class="nav-item" data-view="batches">Batches</button>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Mobius / Renewals</p>
+          <h1>Renewals Dashboard</h1>
+          <p class="subtext">Monitor renewals, surface exceptions, and track batch readiness.</p>
+        </div>
+
+        <div class="topbar-actions">
+          <input type="text" id="searchInput" placeholder="Search customer, policy, broker..." />
+          <button class="secondary-btn">Export CSV</button>
+          <button class="secondary-btn">Export XLSX</button>
+        </div>
+      </header>
+
+      <section id="overviewView" class="view active-view">
+        <div class="kpi-grid">
+          <div class="kpi-card filter-kpi" data-filter="all">
+            <p class="kpi-label">Due in next 14 days</p>
+            <h2>247</h2>
+            <span>All active renewals</span>
+          </div>
+          <div class="kpi-card filter-kpi" data-filter="At risk">
+            <p class="kpi-label">At risk</p>
+            <h2>18</h2>
+            <span>Require intervention</span>
+          </div>
+          <div class="kpi-card filter-kpi" data-filter="Blocked">
+            <p class="kpi-label">Blocked</p>
+            <h2>7</h2>
+            <span>Cannot progress</span>
+          </div>
+          <div class="kpi-card filter-kpi" data-filter="Ready">
+            <p class="kpi-label">Ready for batch</p>
+            <h2>180</h2>
+            <span>Queued for next run</span>
+          </div>
+        </div>
+
+        <div class="content-grid">
+          <section class="panel">
+            <div class="panel-header">
+              <h3>Renewal Queue</h3>
+              <div class="filter-group">
+                <button class="filter-btn active-filter" data-status="all">All</button>
+                <button class="filter-btn" data-status="Blocked">Blocked</button>
+                <button class="filter-btn" data-status="At risk">At risk</button>
+                <button class="filter-btn" data-status="Needs review">Needs review</button>
+                <button class="filter-btn" data-status="Ready">Ready</button>
+                <button class="filter-btn" data-status="Quoted">Quoted</button>
+              </div>
+            </div>
+
+            <div id="renewalList" class="renewal-list"></div>
+          </section>
+
+          <section class="panel detail-panel">
+            <div id="detailContent">
+              <h3>Select a renewal</h3>
+              <p class="muted">Click a renewal from the list to see details.</p>
+            </div>
+          </section>
+        </div>
+      </section>
+
+      <section id="exceptionsView" class="view">
+        <div class="panel">
+          <div class="panel-header">
+            <h3>Exceptions</h3>
+          </div>
+          <div id="exceptionsList" class="exception-list"></div>
+        </div>
+      </section>
+
+      <section id="batchesView" class="view">
+        <div class="panel">
+          <div class="panel-header">
+            <h3>Batch Monitoring</h3>
+          </div>
+          <div id="batchList" class="batch-list"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
