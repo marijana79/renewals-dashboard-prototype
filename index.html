@@ -33,7 +33,7 @@
       </header>
 
       <section id="overviewView" class="view active-view">
-        <div class="kpi-grid">
+        <div class="kpi-grid">␊
           <div class="kpi-card filter-kpi" data-filter="all">
             <p class="kpi-label">Due in next 14 days</p>
             <h2>247</h2>
@@ -54,6 +54,22 @@
             <h2>180</h2>
             <span>Queued for next run</span>
           </div>
+</div>
+
+        <div class="chart-grid">
+          <section class="panel chart-panel">
+            <div class="panel-header">
+              <h3>Renewals Over time</h3>
+            </div>
+            <div id="renewalsOverTimeChart" class="bar-chart"></div>
+          </section>
+
+          <section class="panel chart-panel">
+            <div class="panel-header">
+              <h3>Due for renewals</h3>
+            </div>
+            <div id="dueForRenewalsChart" class="bar-chart"></div>
+          </section>
         </div>
 
         <div class="content-grid">
@@ -106,3 +122,4 @@
 </body>
 
 </html>
+
