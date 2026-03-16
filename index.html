@@ -11,9 +11,10 @@
     <aside class="sidebar">
       <div class="logo">Mobius</div>
       <nav class="nav">
-        <button class="nav-item active" data-view="overview">Overview</button>
-        <button class="nav-item" data-view="exceptions">Exceptions</button>
-        <button class="nav-item" data-view="batches">Batches</button>
+        <button class="nav-item active" data-view="dashboard">Dashboard</button>
+        <button class="nav-item" data-view="createRenewal">Create New Renewal</button>
+        <button class="nav-item" data-view="reports">Reports</button>
+        <button class="nav-item" data-view="referrals">Referrals</button>
       </nav>
     </aside>
 
@@ -27,12 +28,10 @@
 
         <div class="topbar-actions">
           <input type="text" id="searchInput" placeholder="Search customer, policy, broker..." />
-          <button class="secondary-btn">Export CSV</button>
-          <button class="secondary-btn">Export XLSX</button>
         </div>
       </header>
 
-      <section id="overviewView" class="view active-view">
+      <section id="dashboardView" class="view active-view">
         <div class="kpi-grid">
           <div class="kpi-card filter-kpi" data-filter="all">
             <p class="kpi-label">Due in next 14 days</p>
@@ -96,23 +95,42 @@
             </div>
           </section>
         </div>
-      </section>
 
-      <section id="exceptionsView" class="view">
-        <div class="panel">
-          <div class="panel-header">
-            <h3>Exceptions</h3>
-          </div>
-          <div id="exceptionsList" class="exception-list"></div>
+        <div class="content-grid split-sections">
+          <section class="panel">
+            <div class="panel-header">
+              <h3>Exceptions</h3>
+            </div>
+            <div id="exceptionsList" class="exception-list"></div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header">
+              <h3>Batch Monitoring</h3>
+            </div>
+            <div id="batchList" class="batch-list"></div>
+          </section>
         </div>
       </section>
 
-      <section id="batchesView" class="view">
-        <div class="panel">
-          <div class="panel-header">
-            <h3>Batch Monitoring</h3>
-          </div>
-          <div id="batchList" class="batch-list"></div>
+      <section id="createRenewalView" class="view">
+        <div class="panel placeholder-panel">
+          <h3>Create New Renewal</h3>
+          <p class="muted">Placeholder: this area will support creating a new renewal record.</p>
+        </div>
+      </section>
+
+      <section id="reportsView" class="view">
+        <div class="panel placeholder-panel">
+          <h3>Reports</h3>
+          <p class="muted">Placeholder: this area will host reporting dashboards and exports.</p>
+        </div>
+      </section>
+
+      <section id="referralsView" class="view">
+        <div class="panel placeholder-panel">
+          <h3>Referrals</h3>
+          <p class="muted">Placeholder: this area will manage referral activity and status.</p>
         </div>
       </section>
     </main>
