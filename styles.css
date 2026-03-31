@@ -15,8 +15,8 @@ body {
   min-height: 100vh;
 }
 
-.sidebar {
-  background: #04133B;
+.sidebar {␊
+  background: #0F40C5;
   color: white;
   padding: 24px 16px;
   position: sticky;
@@ -37,9 +37,9 @@ body {
   gap: 10px;
 }
 
-.nav-item {
-  background: transparent;
-  color: #d1d5db;
+.nav-item {␊
+  background: transparent;␊
+  color: #ffffff;
   border: none;
   padding: 12px 14px;
   text-align: left;
@@ -48,11 +48,11 @@ body {
   font-size: 15px;
 }
 
-.nav-item:hover,
-.nav-item.active {
-  background: #1f2937;
-  color: white;
-}
+.nav-item:hover,␊
+.nav-item.active {␊
+  background: #3F66D1;
+  color: white;␊
+}␊
 
 .main-content {
   padding: 24px;
