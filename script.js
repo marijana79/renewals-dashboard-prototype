@@ -151,7 +151,6 @@ const detailContent = document.getElementById("detailContent");
 const exceptionsList = document.getElementById("exceptionsList");
 const batchList = document.getElementById("batchList");
 const searchInput = document.getElementById("searchInput");
-const createRenewalBtn = document.getElementById("createRenewalBtn");
 const renewalsOverTimeChart = document.getElementById("renewalsOverTimeChart");
 const dueForRenewalsChart = document.getElementById("dueForRenewalsChart");
 
@@ -296,100 +295,28 @@ function renderExceptions() {
   });
 }
 
-function closeSplitMenus() {
-  document.querySelectorAll(".split-menu").forEach((menu) => menu.classList.remove("open"));
-}
-
 function renderBatches() {
   batchList.innerHTML = "";
 
   batches.forEach((batch) => {
     const div = document.createElement("div");
     div.className = "batch-item";
-
-    const rowTop = document.createElement("div");
-    rowTop.className = "row-top";
-
-    const info = document.createElement("div");
-    info.innerHTML = `
-      <div class="row-title">${batch.id}</div>
-      <div class="row-subtitle">${batch.status}</div>
+    div.innerHTML = `
+      <div class="row-top">
+        <div>
+          <div class="row-title">${batch.id}</div>
+          <div class="row-subtitle">${batch.status}</div>
+        </div>
+      </div>
+      <div class="row-subtitle">Scheduled: ${batch.scheduled}</div>
+      <div class="row-subtitle">Ready: ${batch.ready} | Blocked: ${batch.blocked} | Completed: ${batch.completed}</div>
     `;
 
-    const actions = document.createElement("div");
-    actions.className = "batch-actions";
-
-    const splitGroup = document.createElement("div");
-    splitGroup.className = "split-btn-group";
-
-    const mainButton = document.createElement("button");
-    mainButton.className = "split-btn-main";
-    mainButton.type = "button";
-    mainButton.textContent = "Download";
-
-    const toggleButton = document.createElement("button");
-    toggleButton.className = "split-btn-toggle";
-    toggleButton.type = "button";
-    toggleButton.textContent = "▾";
-
-    const menu = document.createElement("div");
-    menu.className = "split-menu";
-
-    const csvOption = document.createElement("button");
-    csvOption.type = "button";
-    csvOption.textContent = "Download CSV";
-
-    const xlsxOption = document.createElement("button");
-    xlsxOption.type = "button";
-    xlsxOption.textContent = "Download XLSX";
-
-    mainButton.addEventListener("click", (event) => {
-      event.stopPropagation();
-      alert(`Download CSV for batch ${batch.id}`);
+    div.addEventListener("click", () => {
+      alert(
+        `Batch ${batch.id}\n\nStatus: ${batch.status}\nScheduled: ${batch.scheduled}\nReady: ${batch.ready}\nBlocked: ${batch.blocked}\nCompleted: ${batch.completed}`
+      );
     });
-
-    toggleButton.addEventListener("click", (event) => {
-      event.stopPropagation();
-      const isOpen = menu.classList.contains("open");
-      closeSplitMenus();
-      if (!isOpen) {
-        menu.classList.add("open");
-      }
-    });
-
-    csvOption.addEventListener("click", (event) => {
-      event.stopPropagation();
-      alert(`Download CSV for batch ${batch.id}`);
-      closeSplitMenus();
-    });
-
-    xlsxOption.addEventListener("click", (event) => {
-      event.stopPropagation();
-      alert(`Download XLSX for batch ${batch.id}`);
-      closeSplitMenus();
-    });
-
-    menu.appendChild(csvOption);
-    menu.appendChild(xlsxOption);
-    splitGroup.appendChild(mainButton);
-    splitGroup.appendChild(toggleButton);
-    actions.appendChild(splitGroup);
-    actions.appendChild(menu);
-
-    rowTop.appendChild(info);
-    rowTop.appendChild(actions);
-
-    const schedule = document.createElement("div");
-    schedule.className = "row-subtitle";
-    schedule.textContent = `Scheduled: ${batch.scheduled}`;
-
-    const stats = document.createElement("div");
-    stats.className = "row-subtitle";
-    stats.textContent = `Ready: ${batch.ready} | Blocked: ${batch.blocked} | Completed: ${batch.completed}`;
-
-    div.appendChild(rowTop);
-    div.appendChild(schedule);
-    div.appendChild(stats);
 
     batchList.appendChild(div);
   });
@@ -504,7 +431,6 @@ document.querySelectorAll(".nav-item").forEach((button) => {
   button.addEventListener("click", () => {
     const view = button.dataset.view;
     switchView(view);
-    closeSplitMenus();
   });
 });
 
@@ -540,20 +466,8 @@ searchInput.addEventListener("input", (event) => {
   renderRenewals();
 });
 
-if (createRenewalBtn) {
-  createRenewalBtn.addEventListener("click", () => {
-    switchView("createRenewal");
-    closeSplitMenus();
-  });
-}
-
 renderRenewals();
 renderExceptions();
 renderBatches();
 renderRenewalsOverTimeChart();
 renderDueForRenewalsChart();
-
-
-document.addEventListener("click", () => {
-  closeSplitMenus();
-});
