@@ -4,7 +4,7 @@
 
 body {
   margin: 0;
-  font-family: "Proxima Soft", "Proxima Nova Soft", Arial, Helvetica, sans-serif;
+  font-family: Arial, Helvetica, sans-serif;
   background: #f4f6f8;
   color: #1f2937;
 }
@@ -16,13 +16,9 @@ body {
 }
 
 .sidebar {
-  background: #0F40C5;
+  background: #111827;
   color: white;
   padding: 24px 16px;
-  position: sticky;
-  top: 0;
-  height: 100vh;
-  overflow: hidden;
 }
 
 .logo {
@@ -39,7 +35,7 @@ body {
 
 .nav-item {
   background: transparent;
-  color: #ffffff;
+  color: #d1d5db;
   border: none;
   padding: 12px 14px;
   text-align: left;
@@ -50,12 +46,12 @@ body {
 
 .nav-item:hover,
 .nav-item.active {
-  background: #3F66D1;
+  background: #1f2937;
   color: white;
 }
 
 .main-content {
-  padding: 36px 24px 24px;
+  padding: 24px;
 }
 
 .topbar {
@@ -112,7 +108,7 @@ h1 {
 }
 
 .primary-btn {
-  background: #0F40C5;
+  background: #111827;
   color: white;
 }
 
@@ -286,80 +282,10 @@ h1 {
   background: #fff;
 }
 
-.batch-item {
-  cursor: default;
-}
-
 .renewal-item:hover,
 .exception-item:hover,
 .batch-item:hover {
   border-color: #9ca3af;
-}
-
-.split-sections {
-  margin-top: 24px;
-}
-
-.batch-actions {
-  position: relative;
-}
-
-.split-btn-group {
-  display: inline-flex;
-  border: 1px solid #d1d5db;
-  border-radius: 10px;
-  overflow: hidden;
-  background: #fff;
-}
-
-.split-btn-main,
-.split-btn-toggle {
-  border: none;
-  background: #fff;
-  padding: 8px 12px;
-  cursor: pointer;
-}
-
-.split-btn-main {
-  border-right: 1px solid #d1d5db;
-}
-
-.split-btn-toggle {
-  font-size: 12px;
-}
-
-.split-menu {
-  position: absolute;
-  right: 0;
-  top: calc(100% + 6px);
-  background: #fff;
-  border: 1px solid #d1d5db;
-  border-radius: 10px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
-  min-width: 150px;
-  display: none;
-  z-index: 10;
-}
-
-.split-menu.open {
-  display: block;
-}
-
-.split-menu button {
-  width: 100%;
-  text-align: left;
-  background: transparent;
-  border: none;
-  padding: 10px 12px;
-  cursor: pointer;
-}
-
-.split-menu button:hover {
-  background: #f3f4f6;
-}
-
-.placeholder-panel {
-  min-height: 220px;
 }
 
 .renewal-item.active {
