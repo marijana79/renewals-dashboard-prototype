@@ -11,8 +11,9 @@
     <aside class="sidebar">
       <div class="logo">Mobius</div>
       <nav class="nav">
-        <button class="nav-item active" data-view="dashboard">Dashboard</button>
+        <button class="nav-item active" data-view="overview">Overview</button>
         <button class="nav-item" data-view="createRenewal">Create New Renewal</button>
+        <button class="nav-item" data-view="batchHealth">Batch Health</button>
         <button class="nav-item" data-view="reports">Reports</button>
         <button class="nav-item" data-view="referrals">Referrals</button>
       </nav>
@@ -31,7 +32,7 @@
         </div>
       </header>
 
-      <section id="dashboardView" class="view active-view">
+      <section id="overviewView" class="view active-view">
         <div class="kpi-grid">
           <div class="kpi-card filter-kpi" data-filter="all">
             <p class="kpi-label">Due in next 14 days</p>
@@ -120,6 +121,14 @@
         </div>
       </section>
 
+
+      <section id="batchHealthView" class="view">
+        <div class="panel placeholder-panel">
+          <h3>Batch Health</h3>
+          <p class="muted">Placeholder: this area will show batch health metrics, issues, and monitoring details.</p>
+        </div>
+      </section>
+
       <section id="reportsView" class="view">
         <div class="panel placeholder-panel">
           <h3>Reports</h3>
@@ -140,5 +149,4 @@
 </body>
 
 </html>
-
 
