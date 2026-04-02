@@ -12,10 +12,8 @@
       <div class="logo">Mobius</div>
       <nav class="nav">
         <button class="nav-item active" data-view="overview">Overview</button>
-        <button class="nav-item" data-view="createRenewal">Create New Renewal</button>
-        <button class="nav-item" data-view="batchHealth">Batch Health</button>
-        <button class="nav-item" data-view="reports">Reports</button>
-        <button class="nav-item" data-view="referrals">Referrals</button>
+        <button class="nav-item" data-view="exceptions">Exceptions</button>
+        <button class="nav-item" data-view="batches">Batches</button>
       </nav>
     </aside>
 
@@ -28,10 +26,11 @@
         </div>
 
         <div class="topbar-actions">
-          <button id="createRenewalBtn" class="primary-btn">Create Renewal</button>
           <input type="text" id="searchInput" placeholder="Search customer, policy, broker..." />
+          <button class="secondary-btn">Export CSV</button>
+          <button class="secondary-btn">Export XLSX</button>
         </div>
-      </header
+      </header>
 
       <section id="overviewView" class="view active-view">
         <div class="kpi-grid">
@@ -57,18 +56,19 @@
           </div>
 </div>
 
-       <section class="panel chart-panel">
+        <div class="chart-grid">
+          <section class="panel chart-panel">
             <div class="panel-header">
-              <h3>Renewals over time</h3>
+              <h3>Renewals Over time</h3>
             </div>
             <div id="renewalsOverTimeChart" class="bar-chart"></div>
           </section>
 
           <section class="panel chart-panel">
             <div class="panel-header">
-              <h3>Due for renewal</h3>
+              <h3>Due for renewals</h3>
             </div>
-            <div id="dueForRenewalsChart" class="bar-chart"></div
+            <div id="dueForRenewalsChart" class="bar-chart"></div>
           </section>
         </div>
 
@@ -96,50 +96,23 @@
             </div>
           </section>
         </div>
+      </section>
 
-        <div class="content-grid split-sections">
-          <section class="panel">
-            <div class="panel-header">
-              <h3>Exceptions</h3>
-            </div>
-            <div id="exceptionsList" class="exception-list"></div>
-          </section>
-
-          <section class="panel">
-            <div class="panel-header">
-              <h3>Batch Monitoring</h3>
-            </div>
-            <div id="batchList" class="batch-list"></div>
-          </section>
+      <section id="exceptionsView" class="view">
+        <div class="panel">
+          <div class="panel-header">
+            <h3>Exceptions</h3>
+          </div>
+          <div id="exceptionsList" class="exception-list"></div>
         </div>
       </section>
 
-      <section id="createRenewalView" class="view">
-        <div class="panel placeholder-panel">
-          <h3>Create New Renewal</h3>
-          <p class="muted">Placeholder: this area will support creating a new renewal record.</p>
-        </div>
-      </section>
-
-
-      <section id="batchHealthView" class="view">
-        <div class="panel placeholder-panel">
-          <h3>Batch Health</h3>
-          <p class="muted">Placeholder: this area will show batch health metrics, issues, and monitoring details.</p>
-        </div>
-      </section>
-
-      <section id="reportsView" class="view">
-        <div class="panel placeholder-panel">
-          <h3>Reports</h3>
-          <p class="muted">Placeholder: this area will host reporting dashboards and exports.</p>
-        </div>
-      </section>
-
-      <section id="referralsView" class="view">
-        <div class="panel placeholder-panel">
-          <h3>Referrals</h3>
-          <p class="muted">Placeholder: this area will manage referral activity and status.</p>
+      <section id="batchesView" class="view">
+        <div class="panel">
+          <div class="panel-header">
+            <h3>Batch Monitoring</h3>
+          </div>
+          <div id="batchList" class="batch-list"></div>
         </div>
       </section>
     </main>
