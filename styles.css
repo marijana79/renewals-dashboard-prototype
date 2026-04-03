@@ -4,6 +4,9 @@
 
 :root {
   --font-family-primary: "Proxima Soft", "Proxima Nova", "Avenir Next", Avenir, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --new-renewal-btn-resting: #0F40C5;
+  --new-renewal-btn-hover: #3F66D1;
+  --new-renewal-btn-active: #092676;
 }
 
 body {
@@ -133,6 +136,20 @@ h1 {
 .primary-btn {
   background: #111827;
   color: white;
+}
+
+#newRenewalBtn {
+  background: var(--new-renewal-btn-resting);
+  color: #ffffff;
+  transition: background-color 0.2s ease;
+}
+
+#newRenewalBtn:hover {
+  background: var(--new-renewal-btn-hover);
+}
+
+#newRenewalBtn:active {
+  background: var(--new-renewal-btn-active);
 }
 
 .detail-action {
