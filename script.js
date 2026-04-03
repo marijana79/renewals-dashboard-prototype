@@ -154,6 +154,7 @@ const referralsList = document.getElementById("referralsList");
 const searchInput = document.getElementById("searchInput");
 const renewalsOverTimeChart = document.getElementById("renewalsOverTimeChart");
 const dueForRenewalsChart = document.getElementById("dueForRenewalsChart");
+const newRenewalBtn = document.getElementById("newRenewalBtn");
 
 function getBadgeClass(status) {
   if (status === "Blocked") return "blocked";
@@ -497,6 +498,12 @@ searchInput.addEventListener("input", (event) => {
   currentSearch = event.target.value;
   renderRenewals();
 });
+
+if (newRenewalBtn) {
+  newRenewalBtn.addEventListener("click", () => {
+    switchView("createRenewal");
+  });
+}
 
 renderRenewals();
 renderBatches();
