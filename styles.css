@@ -105,6 +105,14 @@ h1 {
   border: 1px solid #d1d5db;
   border-radius: 10px;
   min-width: 280px;
+  height: 40px;
+  flex: 1 1 280px;
+}
+
+.topbar-actions .primary-btn {
+  height: 40px;
+  white-space: nowrap;
+  flex: 0 0 auto;
 }
 
 .secondary-btn,
@@ -410,6 +418,17 @@ ul {
 
   .topbar {
     flex-direction: column;
+  }
+  .topbar-actions {
+    width: 100%;
+  }
+
+  .topbar-actions input {
+    min-width: 0;
+  }
+
+  .topbar-actions .primary-btn {
+    width: 100%;
   }
 }
 
