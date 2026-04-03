@@ -44,9 +44,13 @@ body {
   font-size: 15px;
 }
 
-.nav-item:hover,
-.nav-item.active {
+.nav-item:hover {
   background: #1f2937;
+  color: white;
+}
+
+.nav-item.active {
+  background: #092676;
   color: white;
 }
 
