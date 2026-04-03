@@ -148,8 +148,9 @@ let selectedRenewalId = null;
 
 const renewalList = document.getElementById("renewalList");
 const detailContent = document.getElementById("detailContent");
-const exceptionsList = document.getElementById("exceptionsList");
 const batchList = document.getElementById("batchList");
+const reportsSummary = document.getElementById("reportsSummary");
+const referralsList = document.getElementById("referralsList");
 const searchInput = document.getElementById("searchInput");
 const renewalsOverTimeChart = document.getElementById("renewalsOverTimeChart");
 const dueForRenewalsChart = document.getElementById("dueForRenewalsChart");
@@ -262,8 +263,35 @@ function renderDetail(item) {
   `;
 }
 
-function renderExceptions() {
-  exceptionsList.innerHTML = "";
+function renderReports() {
+  if (!reportsSummary) return;
+
+  const blocked = renewals.filter((item) => item.status === "Blocked").length;
+  const atRisk = renewals.filter((item) => item.status === "At risk").length;
+  const ready = renewals.filter((item) => item.status === "Ready").length;
+
+  reportsSummary.innerHTML = `
+    <div class="exception-item">
+      <div class="row-top">
+        <div class="row-title">Renewal Status Snapshot</div>
+      </div>
+      <div class="row-subtitle">Blocked: ${blocked}</div>
+      <div class="row-subtitle">At risk: ${atRisk}</div>
+      <div class="row-subtitle">Ready: ${ready}</div>
+    </div>
+    <div class="exception-item">
+      <div class="row-top">
+        <div class="row-title">Production Report Export</div>
+      </div>
+      <div class="row-subtitle">Use this placeholder to simulate report export actions.</div>
+    </div>
+  `;
+}
+
+function renderReferrals() {
+  if (!referralsList) return;
+
+  referralsList.innerHTML = "";
 
   const items = renewals.filter(
     (item) => item.status === "Blocked" || item.status === "At risk" || item.status === "Needs review"
@@ -291,8 +319,12 @@ function renderExceptions() {
       renderDetail(item);
     });
 
-    exceptionsList.appendChild(div);
+    referralsList.appendChild(div);
   });
+
+  if (items.length === 0) {
+    referralsList.innerHTML = '<p class="muted">No referrals at this time.</p>';
+  }
 }
 
 function renderBatches() {
@@ -467,7 +499,9 @@ searchInput.addEventListener("input", (event) => {
 });
 
 renderRenewals();
-renderExceptions();
 renderBatches();
+renderReports();
+renderReferrals();
 renderRenewalsOverTimeChart();
 renderDueForRenewalsChart();
+switchView("overview");
