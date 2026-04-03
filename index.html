@@ -12,8 +12,10 @@
       <div class="logo">Mobius</div>
       <nav class="nav">
         <button class="nav-item active" data-view="overview">Overview</button>
-        <button class="nav-item" data-view="exceptions">Exceptions</button>
-        <button class="nav-item" data-view="batches">Batches</button>
+        <button class="nav-item" data-view="createRenewal">Create New Renewal</button>
+        <button class="nav-item" data-view="batchHealth">Batch Health</button>
+        <button class="nav-item" data-view="reports">Reports</button>
+        <button class="nav-item" data-view="referrals">Referrals</button>
       </nav>
     </aside>
 
@@ -94,23 +96,44 @@
             </div>
           </section>
         </div>
-      </section>
-
-      <section id="exceptionsView" class="view">
+      <section id="createRenewalView" class="view">
         <div class="panel">
           <div class="panel-header">
-            <h3>Exceptions</h3>
+            <h3>Create New Renewal</h3>
           </div>
-          <div id="exceptionsList" class="exception-list"></div>
+          <p class="muted">Start a new renewal workflow for a customer policy.</p>
+          <div class="detail-actions">
+            <button class="primary-btn" onclick="alert('Mock action: Launch renewal creation flow')">Start Renewal</button>
+          </div>
         </div>
       </section>
 
-      <section id="batchesView" class="view">
+      <section id="batchHealthView" class="view">
         <div class="panel">
           <div class="panel-header">
-            <h3>Batch Monitoring</h3>
+            <h3>Batch Health</h3>
           </div>
           <div id="batchList" class="batch-list"></div>
+        </div>
+      </section>
+
+      <section id="reportsView" class="view">
+        <div class="panel">
+          <div class="panel-header">
+            <h3>Reports</h3>
+          </div>
+          <div id="reportsSummary" class="exception-list"></div>
+        </div>
+      </section>
+
+      <section id="referralsView" class="view">
+        <div class="panel">
+          <div class="panel-header">
+            <h3>Referrals</h3>
+          </div>
+          <div id="referralsList" class="exception-list"></div>
+        </div>
+      </section>
         </div>
       </section>
     </main>
