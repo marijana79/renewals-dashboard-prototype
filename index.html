@@ -140,6 +140,99 @@
     </main>
   </div>
 
+
+
+  <div id="newRenewalModal" class="drawer-modal" aria-hidden="true">
+    <div class="drawer-overlay" data-modal-close="overlay"></div>
+    <aside class="drawer-panel" role="dialog" aria-modal="true" aria-labelledby="newRenewalTitle" tabindex="-1">
+      <header class="drawer-header">
+        <h2 id="newRenewalTitle">New Renewal</h2>
+        <button id="drawerCloseX" class="drawer-close-icon" type="button" aria-label="Close New Renewal drawer">×</button>
+      </header>
+
+      <div class="drawer-body">
+        <form id="newRenewalForm" novalidate>
+          <div class="form-group">
+            <label class="field-label" for="renewalTypeGroup">Renewal Type</label>
+            <div id="renewalTypeGroup" class="segmented-control" role="radiogroup" aria-label="Renewal Type">
+              <label class="segment-option">
+                <input type="radio" name="renewalType" value="Invite" checked />
+                <span>Invite</span>
+              </label>
+              <label class="segment-option">
+                <input type="radio" name="renewalType" value="Accept" />
+                <span>Accept</span>
+              </label>
+              <label class="segment-option">
+                <input type="radio" name="renewalType" value="Lapse" />
+                <span>Lapse</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="field-label" for="brandSelect">Select Brand</label>
+            <div class="select-wrap">
+              <select id="brandSelect" name="brand">
+                <option value="All" selected>All</option>
+                <option value="Gadget">Gadget</option>
+                <option value="Bicy">Bicy</option>
+                <option value="Tungsten">Tungsten</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="field-label" for="businessLineSelect">Select Business Line</label>
+            <div class="select-wrap">
+              <select id="businessLineSelect" name="businessLine">
+                <option value="All" selected>All</option>
+                <option value="Gadget">Gadget</option>
+                <option value="Bicy">Bicy</option>
+                <option value="Tungsten">Tungsten</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="field-label">Start Date</label>
+            <div class="date-row">
+              <input id="startDateDay" name="startDateDay" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="2" placeholder="DD" aria-label="Start day" />
+              <input id="startDateMonth" name="startDateMonth" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="2" placeholder="MM" aria-label="Start month" />
+              <input id="startDateYear" name="startDateYear" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="YYYY" aria-label="Start year" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="field-label">End Date</label>
+            <div class="date-row">
+              <input id="endDateDay" name="endDateDay" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="2" placeholder="DD" aria-label="End day" />
+              <input id="endDateMonth" name="endDateMonth" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="2" placeholder="MM" aria-label="End month" />
+              <input id="endDateYear" name="endDateYear" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="YYYY" aria-label="End year" />
+            </div>
+          </div>
+
+          <div class="form-group auto-group">
+            <p id="autoToggleLabel" class="field-label auto-title">Create new batch and invite automatically</p>
+            <label class="toggle-row" for="autoActionToggle">
+              <input id="autoActionToggle" type="checkbox" name="autoAction" />
+              <span class="toggle-switch" aria-hidden="true">
+                <span class="toggle-knob"></span>
+              </span>
+              <span id="autoToggleState" class="toggle-state">OFF</span>
+            </label>
+            <p id="autoToggleHelp" class="helper-text">If you turn on “Create new batch and invite automatically”, the system will create a new batch and invite it once it’s ready. You won’t need to take any further action.</p>
+          </div>
+        </form>
+      </div>
+
+      <footer class="drawer-footer">
+        <button id="drawerCloseBtn" class="drawer-btn drawer-btn-outline" type="button">Close</button>
+        <button id="drawerPrimaryBtn" class="drawer-btn drawer-btn-primary" type="submit" form="newRenewalForm">New Invite Batch</button>
+      </footer>
+    </aside>
+  </div>
+
   <script src="script.js"></script>
 </body>
 
