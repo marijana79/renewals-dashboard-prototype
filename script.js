@@ -499,11 +499,223 @@ searchInput.addEventListener("input", (event) => {
   renderRenewals();
 });
 
+const newRenewalModal = document.getElementById("newRenewalModal");
+const drawerPanel = newRenewalModal?.querySelector(".drawer-panel");
+const drawerOverlay = newRenewalModal?.querySelector(".drawer-overlay");
+const drawerCloseX = document.getElementById("drawerCloseX");
+const drawerCloseBtn = document.getElementById("drawerCloseBtn");
+const newRenewalForm = document.getElementById("newRenewalForm");
+const autoActionToggle = document.getElementById("autoActionToggle");
+const autoToggleState = document.getElementById("autoToggleState");
+const autoToggleLabel = document.getElementById("autoToggleLabel");
+const autoToggleHelp = document.getElementById("autoToggleHelp");
+const drawerPrimaryBtn = document.getElementById("drawerPrimaryBtn");
+
+const modalRouteHash = "#new-renewal";
+const focusableSelector = [
+  'a[href]',
+  'button:not([disabled])',
+  'input:not([disabled])',
+  'select:not([disabled])',
+  'textarea:not([disabled])',
+  '[tabindex]:not([tabindex="-1"])'
+].join(',');
+let lastFocusedElement = null;
+
+const renewalTypeConfig = {
+  Invite: {
+    autoLabel: "Create new batch and invite automatically",
+    helperText: "If you turn on “Create new batch and invite automatically”, the system will create a new batch and invite it once it’s ready. You won’t need to take any further action.",
+    primaryLabel: "New Invite Batch"
+  },
+  Accept: {
+    autoLabel: "Create new batch and accept automatically",
+    helperText: "If you turn on “Create new batch and accept automatically”, the system will create a new batch and accept it once it’s ready. You won’t need to take any further action.",
+    primaryLabel: "New Accept Batch"
+  },
+  Lapse: {
+    autoLabel: "Create new batch and lapse automatically",
+    helperText: "If you turn on “Create new batch and lapse automatically”, the system will create a new batch and lapse it once it’s ready. You won’t need to take any further action.",
+    primaryLabel: "New Lapse Batch"
+  }
+};
+
+function getSelectedRenewalType() {
+  const selected = document.querySelector('input[name="renewalType"]:checked');
+  return selected ? selected.value : "Invite";
+}
+
+function updateRenewalTypeDependentContent() {
+  const type = getSelectedRenewalType();
+  const config = renewalTypeConfig[type] || renewalTypeConfig.Invite;
+  if (autoToggleLabel) autoToggleLabel.textContent = config.autoLabel;
+  if (autoToggleHelp) autoToggleHelp.textContent = config.helperText;
+  if (drawerPrimaryBtn) drawerPrimaryBtn.textContent = config.primaryLabel;
+}
+
+function updateToggleStateText() {
+  if (autoToggleState && autoActionToggle) {
+    autoToggleState.textContent = autoActionToggle.checked ? "ON" : "OFF";
+  }
+}
+
+function setModalHashOpen() {
+  if (location.hash !== modalRouteHash) {
+    location.hash = modalRouteHash;
+  }
+}
+
+function clearModalHash() {
+  if (location.hash) {
+    location.hash = "";
+  }
+}
+
+function openModal() {
+  if (!newRenewalModal || !drawerPanel) return;
+  lastFocusedElement = document.activeElement;
+  newRenewalModal.classList.add("open");
+  newRenewalModal.setAttribute("aria-hidden", "false");
+  document.body.classList.add("modal-open");
+
+  const focusableElements = drawerPanel.querySelectorAll(focusableSelector);
+  if (focusableElements.length) {
+    focusableElements[0].focus();
+  } else {
+    drawerPanel.focus();
+  }
+}
+
+function closeModal() {
+  if (!newRenewalModal) return;
+  newRenewalModal.classList.remove("open");
+  newRenewalModal.setAttribute("aria-hidden", "true");
+  document.body.classList.remove("modal-open");
+  if (lastFocusedElement && typeof lastFocusedElement.focus === "function") {
+    lastFocusedElement.focus();
+  } else if (newRenewalBtn) {
+    newRenewalBtn.focus();
+  }
+}
+
+function syncModalWithHash() {
+  if (location.hash === modalRouteHash) {
+    openModal();
+  } else {
+    closeModal();
+  }
+}
+
+function trapFocusInModal(event) {
+  if (event.key !== "Tab" || !newRenewalModal?.classList.contains("open") || !drawerPanel) return;
+
+  const focusableElements = Array.from(drawerPanel.querySelectorAll(focusableSelector)).filter((el) => {
+    return el.offsetParent !== null || el === document.activeElement;
+  });
+
+  if (!focusableElements.length) return;
+
+  const first = focusableElements[0];
+  const last = focusableElements[focusableElements.length - 1];
+
+  if (event.shiftKey && document.activeElement === first) {
+    event.preventDefault();
+    last.focus();
+  } else if (!event.shiftKey && document.activeElement === last) {
+    event.preventDefault();
+    first.focus();
+  }
+}
+
+function enforcePartialDate(inputIds) {
+  const values = inputIds.map((id) => document.getElementById(id)?.value.trim() || "");
+  const hasAny = values.some((value) => value !== "");
+  const hasAll = values.every((value) => value !== "");
+  return !hasAny || hasAll;
+}
+
 if (newRenewalBtn) {
   newRenewalBtn.addEventListener("click", () => {
-    switchView("createRenewal");
+    setModalHashOpen();
   });
 }
+
+if (drawerOverlay) {
+  drawerOverlay.addEventListener("click", () => {
+    clearModalHash();
+  });
+}
+
+if (drawerCloseX) {
+  drawerCloseX.addEventListener("click", () => {
+    clearModalHash();
+  });
+}
+
+if (drawerCloseBtn) {
+  drawerCloseBtn.addEventListener("click", () => {
+    clearModalHash();
+  });
+}
+
+if (autoActionToggle) {
+  autoActionToggle.addEventListener("change", updateToggleStateText);
+}
+
+document.querySelectorAll('input[name="renewalType"]').forEach((radio) => {
+  radio.addEventListener("change", updateRenewalTypeDependentContent);
+});
+
+newRenewalForm?.querySelectorAll('input[inputmode="numeric"]').forEach((input) => {
+  input.addEventListener("input", () => {
+    input.value = input.value.replace(/\D/g, "");
+  });
+});
+
+if (newRenewalForm) {
+  newRenewalForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+
+    const isStartDateValid = enforcePartialDate(["startDateDay", "startDateMonth", "startDateYear"]);
+    const isEndDateValid = enforcePartialDate(["endDateDay", "endDateMonth", "endDateYear"]);
+
+    if (!isStartDateValid || !isEndDateValid) {
+      alert("If any part of Start Date or End Date is entered, all date fields for that date are required.");
+      return;
+    }
+
+    const payload = {
+      renewalType: getSelectedRenewalType(),
+      brand: document.getElementById("brandSelect")?.value || "All",
+      businessLine: document.getElementById("businessLineSelect")?.value || "All",
+      startDate: {
+        day: document.getElementById("startDateDay")?.value || "",
+        month: document.getElementById("startDateMonth")?.value || "",
+        year: document.getElementById("startDateYear")?.value || ""
+      },
+      endDate: {
+        day: document.getElementById("endDateDay")?.value || "",
+        month: document.getElementById("endDateMonth")?.value || "",
+        year: document.getElementById("endDateYear")?.value || ""
+      },
+      automatic: Boolean(autoActionToggle?.checked)
+    };
+
+    console.log("New Renewal payload:", payload);
+    clearModalHash();
+  });
+}
+
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && newRenewalModal?.classList.contains("open")) {
+    clearModalHash();
+    return;
+  }
+
+  trapFocusInModal(event);
+});
+
+window.addEventListener("hashchange", syncModalWithHash);
 
 renderRenewals();
 renderBatches();
@@ -512,3 +724,6 @@ renderReferrals();
 renderRenewalsOverTimeChart();
 renderDueForRenewalsChart();
 switchView("overview");
+updateRenewalTypeDependentContent();
+updateToggleStateText();
+syncModalWithHash();
