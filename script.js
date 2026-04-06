@@ -510,6 +510,7 @@ const autoToggleState = document.getElementById("autoToggleState");
 const autoToggleLabel = document.getElementById("autoToggleLabel");
 const autoToggleHelp = document.getElementById("autoToggleHelp");
 const drawerPrimaryBtn = document.getElementById("drawerPrimaryBtn");
+const toastContainer = document.getElementById("toast-container");
 
 const modalRouteHash = "#new-renewal";
 const focusableSelector = [
@@ -539,6 +540,48 @@ const renewalTypeConfig = {
     primaryLabel: "New Lapse Batch"
   }
 };
+
+const renewalTypeToastMessages = {
+  Invite: "New Invite renewal batch has been created.",
+  Accept: "New Accept renewal batch has been created.",
+  Lapse: "New Lapse renewal batch has been created."
+};
+
+function showToast(message) {
+  if (!toastContainer || !message) return;
+
+  const toast = document.createElement("div");
+  toast.className = "toast";
+  toast.setAttribute("role", "status");
+
+  const messageEl = document.createElement("p");
+  messageEl.className = "toast-message";
+  messageEl.textContent = message;
+
+  const closeBtn = document.createElement("button");
+  closeBtn.className = "toast-close";
+  closeBtn.type = "button";
+  closeBtn.setAttribute("aria-label", "Dismiss notification");
+  closeBtn.textContent = "×";
+
+  toast.appendChild(messageEl);
+  toast.appendChild(closeBtn);
+  toastContainer.appendChild(toast);
+
+  requestAnimationFrame(() => {
+    toast.classList.add("visible");
+  });
+
+  const dismissToast = () => {
+    toast.classList.remove("visible");
+    window.setTimeout(() => {
+      toast.remove();
+    }, 200);
+  };
+
+  closeBtn.addEventListener("click", dismissToast);
+  window.setTimeout(dismissToast, 3000);
+}
 
 function getSelectedRenewalType() {
   const selected = document.querySelector('input[name="renewalType"]:checked');
@@ -673,7 +716,7 @@ newRenewalForm?.querySelectorAll('input[inputmode="numeric"]').forEach((input) =
 });
 
 if (newRenewalForm) {
-  newRenewalForm.addEventListener("submit", (event) => {
+  newRenewalForm.addEventListener("submit", async (event) => {
     event.preventDefault();
 
     const isStartDateValid = enforcePartialDate(["startDateDay", "startDateMonth", "startDateYear"]);
@@ -702,7 +745,22 @@ if (newRenewalForm) {
     };
 
     console.log("New Renewal payload:", payload);
+
+    if (drawerPrimaryBtn) {
+      drawerPrimaryBtn.disabled = true;
+    }
+
+    await new Promise((resolve) => {
+      window.setTimeout(resolve, 400);
+    });
+
+    if (drawerPrimaryBtn) {
+      drawerPrimaryBtn.disabled = false;
+    }
+
     clearModalHash();
+    const toastMessage = renewalTypeToastMessages[payload.renewalType] || renewalTypeToastMessages.Invite;
+    showToast(toastMessage);
   });
 }
 
