@@ -1,3 +1,11 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Renewals Dashboard Prototype V1</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
 <body>
   <div class="app-shell">
     <aside class="sidebar">
@@ -101,3 +109,182 @@
         <div class="chart-grid">
           <section class="panel chart-panel">
             <div class="panel-header">
+              <h3>Renewals Over time</h3>
+            </div>
+            <div id="renewalsOverTimeChart" class="bar-chart"></div>
+          </section>
+
+          <section class="panel chart-panel">
+            <div class="panel-header">
+              <h3>Due for renewals</h3>
+            </div>
+            <div id="dueForRenewalsChart" class="bar-chart"></div>
+          </section>
+        </div>
+
+        <div class="content-grid">
+          <section class="panel">
+            <div class="panel-header">
+              <h3>Renewal Queue</h3>
+              <div class="filter-group">
+                <button class="filter-btn active-filter" data-status="all">All</button>
+                <button class="filter-btn" data-status="Blocked">Blocked</button>
+                <button class="filter-btn" data-status="At risk">At risk</button>
+                <button class="filter-btn" data-status="Needs review">Needs review</button>
+                <button class="filter-btn" data-status="Ready">Ready</button>
+                <button class="filter-btn" data-status="Quoted">Quoted</button>
+              </div>
+            </div>
+
+            <div id="renewalList" class="renewal-list"></div>
+          </section>
+
+          <section class="panel detail-panel">
+            <div id="detailContent">
+              <h3>Select a renewal</h3>
+              <p class="muted">Click a renewal from the list to see details.</p>
+            </div>
+          </section>
+        </div>
+      <section id="createRenewalView" class="view">
+        <div class="panel">
+          <div class="panel-header">
+            <h3>Create New Renewal</h3>
+          </div>
+          <p class="muted">Start a new renewal workflow for a customer policy.</p>
+          <div class="detail-actions">
+            <button class="primary-btn" onclick="alert('Mock action: Launch renewal creation flow')">Start Renewal</button>
+          </div>
+        </div>
+      </section>
+
+      <section id="batchHealthView" class="view">
+        <div class="panel">
+          <div class="panel-header">
+            <h3>Batch Health</h3>
+          </div>
+          <div id="batchList" class="batch-list"></div>
+        </div>
+      </section>
+
+      <section id="reportsView" class="view">
+        <div class="panel">
+          <div class="panel-header">
+            <h3>Reports</h3>
+          </div>
+          <div id="reportsSummary" class="exception-list"></div>
+        </div>
+      </section>
+
+      <section id="referralsView" class="view">
+        <div class="panel">
+          <div class="panel-header">
+            <h3>Referrals</h3>
+          </div>
+          <div id="referralsList" class="exception-list"></div>
+        </div>
+      </section>
+        </div>
+      </section>
+    </main>
+  </div>
+
+
+
+  <div id="newRenewalModal" class="drawer-modal" aria-hidden="true">
+    <div class="drawer-overlay" data-modal-close="overlay"></div>
+    <aside class="drawer-panel" role="dialog" aria-modal="true" aria-labelledby="newRenewalTitle" tabindex="-1">
+      <header class="drawer-header">
+        <h2 id="newRenewalTitle">New Renewal</h2>
+        <button id="drawerCloseX" class="drawer-close-icon" type="button" aria-label="Close New Renewal drawer">×</button>
+      </header>
+
+      <div class="drawer-body">
+        <form id="newRenewalForm" novalidate>
+          <div class="form-group">
+            <label class="field-label" for="renewalTypeGroup">Renewal Type</label>
+            <div id="renewalTypeGroup" class="segmented-control" role="radiogroup" aria-label="Renewal Type">
+              <label class="segment-option">
+                <input type="radio" name="renewalType" value="Invite" checked />
+                <span>Invite</span>
+              </label>
+              <label class="segment-option">
+                <input type="radio" name="renewalType" value="Accept" />
+                <span>Accept</span>
+              </label>
+              <label class="segment-option">
+                <input type="radio" name="renewalType" value="Lapse" />
+                <span>Lapse</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="field-label" for="brandSelect">Select Brand</label>
+            <div class="select-wrap">
+              <select id="brandSelect" name="brand">
+                <option value="All" selected>All</option>
+                <option value="Gadget">Gadget</option>
+                <option value="Bicy">Bicy</option>
+                <option value="Tungsten">Tungsten</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="field-label" for="businessLineSelect">Select Business Line</label>
+            <div class="select-wrap">
+              <select id="businessLineSelect" name="businessLine">
+                <option value="All" selected>All</option>
+                <option value="Gadget">Gadget</option>
+                <option value="Bicy">Bicy</option>
+                <option value="Tungsten">Tungsten</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="field-label">Start Date</label>
+            <div class="date-row">
+              <input id="startDateDay" name="startDateDay" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="2" placeholder="DD" aria-label="Start day" />
+              <input id="startDateMonth" name="startDateMonth" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="2" placeholder="MM" aria-label="Start month" />
+              <input id="startDateYear" name="startDateYear" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="YYYY" aria-label="Start year" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="field-label">End Date</label>
+            <div class="date-row">
+              <input id="endDateDay" name="endDateDay" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="2" placeholder="DD" aria-label="End day" />
+              <input id="endDateMonth" name="endDateMonth" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="2" placeholder="MM" aria-label="End month" />
+              <input id="endDateYear" name="endDateYear" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="4" placeholder="YYYY" aria-label="End year" />
+            </div>
+          </div>
+
+          <div class="form-group auto-group">
+            <p id="autoToggleLabel" class="field-label auto-title">Create new batch and invite automatically</p>
+            <label class="toggle-row" for="autoActionToggle">
+              <input id="autoActionToggle" type="checkbox" name="autoAction" />
+              <span class="toggle-switch" aria-hidden="true">
+                <span class="toggle-knob"></span>
+              </span>
+              <span id="autoToggleState" class="toggle-state">OFF</span>
+            </label>
+            <p id="autoToggleHelp" class="helper-text">If you turn on “Create new batch and invite automatically”, the system will create a new batch and invite it once it’s ready. You won’t need to take any further action.</p>
+          </div>
+        </form>
+      </div>
+
+      <footer class="drawer-footer">
+        <button id="drawerCloseBtn" class="drawer-btn drawer-btn-outline" type="button">Close</button>
+        <button id="drawerPrimaryBtn" class="drawer-btn drawer-btn-primary" type="submit" form="newRenewalForm">New Invite Batch</button>
+      </footer>
+    </aside>
+  </div>
+
+  <div id="toast-container" aria-live="polite" aria-atomic="false"></div>
+
+  <script src="script.js"></script>
+</body>
+
+</html>
