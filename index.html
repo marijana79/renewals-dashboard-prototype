@@ -171,9 +171,9 @@
       <section id="reportsView" class="view">
         <section class="panel report-header-panel">
           <h2 class="reports-page-title">Reports</h2>
-          <p class="subtext">View renewal reporting, batch outcomes, and operational signals.</p>
+          <p class="subtext">Review batch outcomes, monitor performance, and download operational reports.</p>
 
-          <div class="reports-filters-row">
+          <div class="reports-filters-row" aria-label="Report filters">
             <div class="report-filter-field">
               <label class="field-label" for="reportTimeFilter">Time</label>
               <div class="select-wrap">
@@ -226,7 +226,7 @@
             </div>
 
             <div class="report-filter-field">
-              <label class="field-label" for="reportDownloadAction">Download</label>
+              <label class="field-label" for="reportDownloadAction">Download report</label>
               <div class="select-wrap">
                 <select id="reportDownloadAction">
                   <option value="" selected>Select action</option>
@@ -240,26 +240,11 @@
 
         <div id="reportsKpiGrid" class="kpi-grid reports-kpi-grid"></div>
 
-        <div class="chart-grid reports-chart-grid">
-          <section class="panel chart-panel">
-            <div class="panel-header">
-              <h3>Renewal outcomes over time</h3>
-            </div>
-            <div id="reportsOutcomesChart" class="stacked-chart"></div>
-          </section>
-
-          <section class="panel chart-panel">
-            <div class="panel-header">
-              <h3>Due for renewal</h3>
-            </div>
-            <div id="reportsDueChart" class="bar-chart"></div>
-          </section>
-        </div>
-
         <div class="content-grid report-ops-grid">
           <section class="panel">
-            <div class="panel-header">
+            <div class="panel-header actionable-header">
               <h3>Recent batch runs</h3>
+              <button class="text-action-btn report-view-more" data-view-more="recent-batch-runs" type="button">View more</button>
             </div>
             <div class="table-wrap compact-table-wrap">
               <table class="data-table compact-table">
@@ -279,23 +264,26 @@
           </section>
 
           <section class="panel">
-            <div class="panel-header">
+            <div class="panel-header actionable-header">
               <h3>Exception breakdown</h3>
+              <button class="text-action-btn report-view-more" data-view-more="exception-breakdown" type="button">View more</button>
             </div>
             <div id="exceptionBreakdown" class="exception-breakdown"></div>
           </section>
         </div>
 
         <section class="panel">
-          <div class="panel-header">
+          <div class="panel-header actionable-header">
             <h3>Monitoring signals</h3>
+            <button class="text-action-btn report-view-more" data-view-more="monitoring-signals" type="button">View more</button>
           </div>
           <div id="monitoringSignals" class="monitoring-signals-grid"></div>
         </section>
 
         <section class="panel">
-          <div class="panel-header">
+          <div class="panel-header actionable-header">
             <h3>Batch reports</h3>
+            <button class="text-action-btn report-view-more" data-view-more="batch-reports" type="button">View more</button>
           </div>
           <div class="table-wrap">
             <table class="data-table">
@@ -308,9 +296,7 @@
                   <th>Success</th>
                   <th>Exceptions</th>
                   <th>Output file</th>
-                  <th>Download CSV</th>
-                  <th>Download XLSX</th>
-                  <th>View details</th>
+                  <th>Options</th>
                 </tr>
               </thead>
               <tbody id="batchReportsBody"></tbody>
