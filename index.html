@@ -11,11 +11,11 @@
     <aside class="sidebar">
       <div class="logo">Mobius</div>
       <nav class="nav">
-        <button class="nav-item active" data-view="overview">Overview</button>
-        <button class="nav-item" data-view="createRenewal">Create New Renewal</button>
-        <button class="nav-item" data-view="batchHealth">Batch Health</button>
-        <button class="nav-item" data-view="reports">Reports</button>
-        <button class="nav-item" data-view="referrals">Referrals</button>
+        <button class="nav-item active" data-route="overview">Overview</button>
+        <button class="nav-item" data-route="createRenewal">Create New Renewal</button>
+        <button class="nav-item" data-route="batchHealth">Batch Health</button>
+        <button class="nav-item" data-route="reports">Reports</button>
+        <button class="nav-item" data-route="referrals">Referrals</button>
       </nav>
     </aside>
 
@@ -104,12 +104,12 @@
             <h2>180</h2>
             <span>Queued for next run</span>
           </div>
-</div>
+        </div>
 
         <div class="chart-grid">
           <section class="panel chart-panel">
             <div class="panel-header">
-              <h3>Renewals Over time</h3>
+              <h3>Renewals over time</h3>
             </div>
             <div id="renewalsOverTimeChart" class="bar-chart"></div>
           </section>
@@ -135,7 +135,6 @@
                 <button class="filter-btn" data-status="Quoted">Quoted</button>
               </div>
             </div>
-
             <div id="renewalList" class="renewal-list"></div>
           </section>
 
@@ -146,6 +145,8 @@
             </div>
           </section>
         </div>
+      </section>
+
       <section id="createRenewalView" class="view">
         <div class="panel">
           <div class="panel-header">
@@ -168,12 +169,154 @@
       </section>
 
       <section id="reportsView" class="view">
-        <div class="panel">
-          <div class="panel-header">
-            <h3>Reports</h3>
+        <section class="panel report-header-panel">
+          <h2 class="reports-page-title">Reports</h2>
+          <p class="subtext">View renewal reporting, batch outcomes, and operational signals.</p>
+
+          <div class="reports-filters-row">
+            <div class="report-filter-field">
+              <label class="field-label" for="reportTimeFilter">Time</label>
+              <div class="select-wrap">
+                <select id="reportTimeFilter">
+                  <option value="7 days" selected>7 days</option>
+                  <option value="14 days">14 days</option>
+                  <option value="Month">Month</option>
+                  <option value="3 months">3 months</option>
+                  <option value="6 months">6 months</option>
+                  <option value="12 months">12 months</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="report-filter-field">
+              <label class="field-label" for="reportRenewalTypeFilter">Renewal type</label>
+              <div class="select-wrap">
+                <select id="reportRenewalTypeFilter">
+                  <option value="All" selected>All</option>
+                  <option value="Invite">Invite</option>
+                  <option value="Accept">Accept</option>
+                  <option value="Lapse">Lapse</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="report-filter-field">
+              <label class="field-label" for="reportBrandFilter">Brand</label>
+              <div class="select-wrap">
+                <select id="reportBrandFilter">
+                  <option value="All" selected>All</option>
+                  <option value="Gadget">Gadget</option>
+                  <option value="Bicy">Bicy</option>
+                  <option value="Tungsten">Tungsten</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="report-filter-field">
+              <label class="field-label" for="reportBusinessLineFilter">Business line</label>
+              <div class="select-wrap">
+                <select id="reportBusinessLineFilter">
+                  <option value="All" selected>All</option>
+                  <option value="Property">Property</option>
+                  <option value="Motor">Motor</option>
+                  <option value="Casualty">Casualty</option>
+                  <option value="Specialty">Specialty</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="report-filter-field">
+              <label class="field-label" for="reportDownloadAction">Download</label>
+              <div class="select-wrap">
+                <select id="reportDownloadAction">
+                  <option value="" selected>Select action</option>
+                  <option value="csv">Download CSV</option>
+                  <option value="xlsx">Download XLSX</option>
+                </select>
+              </div>
+            </div>
           </div>
-          <div id="reportsSummary" class="exception-list"></div>
+        </section>
+
+        <div id="reportsKpiGrid" class="kpi-grid reports-kpi-grid"></div>
+
+        <div class="chart-grid reports-chart-grid">
+          <section class="panel chart-panel">
+            <div class="panel-header">
+              <h3>Renewal outcomes over time</h3>
+            </div>
+            <div id="reportsOutcomesChart" class="stacked-chart"></div>
+          </section>
+
+          <section class="panel chart-panel">
+            <div class="panel-header">
+              <h3>Due for renewal</h3>
+            </div>
+            <div id="reportsDueChart" class="bar-chart"></div>
+          </section>
         </div>
+
+        <div class="content-grid report-ops-grid">
+          <section class="panel">
+            <div class="panel-header">
+              <h3>Recent batch runs</h3>
+            </div>
+            <div class="table-wrap compact-table-wrap">
+              <table class="data-table compact-table">
+                <thead>
+                  <tr>
+                    <th>Batch ID</th>
+                    <th>Type</th>
+                    <th>Started</th>
+                    <th>Completed</th>
+                    <th>Policies</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="recentBatchRunsBody"></tbody>
+              </table>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-header">
+              <h3>Exception breakdown</h3>
+            </div>
+            <div id="exceptionBreakdown" class="exception-breakdown"></div>
+          </section>
+        </div>
+
+        <section class="panel">
+          <div class="panel-header">
+            <h3>Monitoring signals</h3>
+          </div>
+          <div id="monitoringSignals" class="monitoring-signals-grid"></div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-header">
+            <h3>Batch reports</h3>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Batch ID</th>
+                  <th>Type</th>
+                  <th>Policies</th>
+                  <th>Success</th>
+                  <th>Exceptions</th>
+                  <th>Output file</th>
+                  <th>Download CSV</th>
+                  <th>Download XLSX</th>
+                  <th>View details</th>
+                </tr>
+              </thead>
+              <tbody id="batchReportsBody"></tbody>
+            </table>
+          </div>
+        </section>
       </section>
 
       <section id="referralsView" class="view">
@@ -184,12 +327,8 @@
           <div id="referralsList" class="exception-list"></div>
         </div>
       </section>
-        </div>
-      </section>
     </main>
   </div>
-
-
 
   <div id="newRenewalModal" class="drawer-modal" aria-hidden="true">
     <div class="drawer-overlay" data-modal-close="overlay"></div>
@@ -286,5 +425,4 @@
 
   <script src="script.js"></script>
 </body>
-
 </html>
