@@ -97,6 +97,142 @@ const batches = [
   { id: "B-2402-Z", scheduled: "Yesterday, 23:30", status: "Completed", ready: 0, blocked: 0, completed: 143 }
 ];
 
+
+const referralRecords = [
+  {
+    id: "REF-9012",
+    policyId: "POL-774119",
+    client: "Islands",
+    policy: "Fleet Prime",
+    reason: "Accept issue",
+    renewalDate: "2026-04-08",
+    assignedTo: "Marijana Andrevska",
+    status: "Open",
+    renewalType: "Accept",
+    source: "Overnight batch",
+    batchId: "RB-4801",
+    priority: "High",
+    nextAction: "Validate accept output",
+    whyReferred: "Accept output generated with 19 exceptions and one missing premium row.",
+    notes: ["Broker asked for status by noon.", "Output contains duplicate policy segment."],
+    timeline: ["08:24 UTC referred from RB-4801", "08:35 UTC ownership assigned", "09:10 UTC triage started"],
+    activity: ["Case opened in operations queue", "Customer team notified in channel #renewals-ops"],
+    allowsLapse: false,
+    allowsRetry: true,
+    allowsRerun: true
+  },
+  {
+    id: "REF-9018",
+    policyId: "POL-998221",
+    client: "Greenlight",
+    policy: "Commercial Property",
+    reason: "Lapse / manual review",
+    renewalDate: "2026-04-07",
+    assignedTo: "Laurence Abbott",
+    status: "In progress",
+    renewalType: "Lapse",
+    source: "Manual prep",
+    batchId: null,
+    priority: "High",
+    nextAction: "Confirm lapse instruction",
+    whyReferred: "Manual lapse request entered but outstanding payment reconciliation was detected.",
+    notes: ["Client requested manual override if payment clears.", "Awaiting finance confirmation."],
+    timeline: ["2026-04-06 17:02 UTC referral created", "2026-04-07 08:15 UTC moved to in progress"],
+    activity: ["Finance ticket FIN-2213 linked", "Manual review checklist started"],
+    allowsLapse: true,
+    allowsRetry: false,
+    allowsRerun: false
+  },
+  {
+    id: "REF-9024",
+    policyId: "POL-442015",
+    client: "Islands",
+    policy: "Household Plus",
+    reason: "Record locked",
+    renewalDate: "2026-04-10",
+    assignedTo: "All",
+    status: "Open",
+    renewalType: "Invite",
+    source: "System generated",
+    batchId: "RB-4802",
+    priority: "Medium",
+    nextAction: "Unlock and replay",
+    whyReferred: "Policy locked by concurrent endorsement update during invite run.",
+    notes: ["No customer impact yet."],
+    timeline: ["08:17 UTC lock conflict detected", "08:18 UTC auto-refer created"],
+    activity: ["Lock owner identified as endorsements service"],
+    allowsLapse: false,
+    allowsRetry: true,
+    allowsRerun: true
+  },
+  {
+    id: "REF-9030",
+    policyId: "POL-118201",
+    client: "Greenlight",
+    policy: "SME Liability",
+    reason: "Missing data",
+    renewalDate: "2026-04-12",
+    assignedTo: "Katerina Danilovska",
+    status: "Open",
+    renewalType: "Invite",
+    source: "Manual prep",
+    batchId: null,
+    priority: "Medium",
+    nextAction: "Request turnover update",
+    whyReferred: "Mandatory turnover field missing from renewal intake record.",
+    notes: ["Advisor can provide data same day."],
+    timeline: ["09:05 UTC manual prep flagged missing turnover"],
+    activity: ["Reminder sent to advisor inbox"],
+    allowsLapse: false,
+    allowsRetry: false,
+    allowsRerun: false
+  },
+  {
+    id: "REF-9033",
+    policyId: "POL-871105",
+    client: "Harbor Group",
+    policy: "Cyber Shield",
+    reason: "Payment / downstream issue",
+    renewalDate: "2026-04-08",
+    assignedTo: "Andrej Cilkov",
+    status: "Resolved",
+    renewalType: "Accept",
+    source: "System generated",
+    batchId: "RB-4798",
+    priority: "Low",
+    nextAction: "Monitor post-fix",
+    whyReferred: "Downstream payment confirmation timed out during accept confirmation.",
+    notes: ["Recovered after retry."],
+    timeline: ["01:39 UTC timeout occurred", "02:01 UTC retry completed", "02:15 UTC resolved"],
+    activity: ["Payment service incident INC-0091 closed"],
+    allowsLapse: false,
+    allowsRetry: true,
+    allowsRerun: false
+  },
+  {
+    id: "REF-9039",
+    policyId: "POL-660714",
+    client: "Blue Pine",
+    policy: "Fleet Standard",
+    reason: "Invite issue",
+    renewalDate: "2026-04-09",
+    assignedTo: "Mark Feltwell",
+    status: "Open",
+    renewalType: "Invite",
+    source: "Overnight batch",
+    batchId: "RB-4802",
+    priority: "High",
+    nextAction: "Re-run invite batch segment",
+    whyReferred: "Invite file produced with malformed policy key for one segment.",
+    notes: ["Batch anomaly appears isolated to one source file."],
+    timeline: ["08:16 UTC anomaly detected", "08:22 UTC referred"],
+    activity: ["Data engineering asked to review transform logs"],
+    allowsLapse: false,
+    allowsRetry: true,
+    allowsRerun: true
+  }
+];
+
 const reportBase = {
   kpis: {
     batchesRun: 38,
@@ -168,7 +304,13 @@ const routeToView = {
 const renewalList = document.getElementById("renewalList");
 const detailContent = document.getElementById("detailContent");
 const batchList = document.getElementById("batchList");
-const referralsList = document.getElementById("referralsList");
+const referralQueueTableWrap = document.getElementById("referralQueueTableWrap");
+const referralDetailContent = document.getElementById("referralDetailContent");
+const referralsKpiGrid = document.getElementById("referralsKpiGrid");
+const refBatchGrouped = document.getElementById("refBatchGrouped");
+const refReasonGrouped = document.getElementById("refReasonGrouped");
+const refBatchSnapshot = document.getElementById("refBatchSnapshot");
+const refReasonBreakdown = document.getElementById("refReasonBreakdown");
 const searchInput = document.getElementById("searchInput");
 const renewalsOverTimeChart = document.getElementById("renewalsOverTimeChart");
 const dueForRenewalsChart = document.getElementById("dueForRenewalsChart");
@@ -191,6 +333,22 @@ const reportBusinessLineFilter = document.getElementById("reportBusinessLineFilt
 const reportDownloadAction = document.getElementById("reportDownloadAction");
 
 let openBatchMenuId = null;
+let selectedReferralId = referralRecords[0]?.id || null;
+let openReferralMenuId = null;
+let activeReferralView = "queue";
+
+const referralFilters = {
+  search: "",
+  time: "7 days",
+  status: "Open",
+  reason: "All",
+  assignedTo: "All",
+  renewalType: "All",
+  client: "All",
+  dueState: "All",
+  priority: "All",
+  source: "All"
+};
 
 const timeContextLabelMap = {
   "7 days": "Last 7 days",
@@ -388,33 +546,180 @@ function renderBatches() {
   });
 }
 
-function renderReferrals() {
-  if (!referralsList) return;
-  referralsList.innerHTML = "";
+function getReferralDueState(dateString) {
+  const diff = daysUntil(dateString);
+  if (diff < 0) return "Overdue";
+  if (diff === 0) return "Due today";
+  if (diff <= 3) return "Due in 3 days";
+  if (diff <= 7) return "Due this week";
+  return "Future";
+}
 
-  const items = renewals.filter((item) => ["Blocked", "At risk", "Needs review"].includes(item.status));
-  items.forEach((item) => {
-    const div = document.createElement("div");
-    div.className = "exception-item";
-    div.innerHTML = `
-      <div class="row-top">
-        <div>
-          <div class="row-title">${item.customer}</div>
-          <div class="row-subtitle">${item.exceptionType}</div>
-        </div>
-        <span class="badge ${getBadgeClass(item.status)}">${item.status}</span>
-      </div>
-      <div class="row-subtitle">Owner: ${item.owner} | Renewal date: ${item.renewalDate}</div>
-      <div class="row-subtitle">${item.notes}</div>
-    `;
-    div.addEventListener("click", () => {
-      setRoute("overview");
-      selectedRenewalId = item.id;
-      renderRenewals();
-      renderDetail(item);
-    });
-    referralsList.appendChild(div);
+function getReferralPriorityClass(priority) {
+  return `priority-${priority.toLowerCase()}`;
+}
+
+function getFilteredReferrals() {
+  const normalizedSearch = referralFilters.search.trim().toLowerCase();
+  const rangeDaysMap = { "7 days": 7, "14 days": 14, Month: 30, "3 months": 90, "6 months": 180, "12 months": 365 };
+  const rangeDays = rangeDaysMap[referralFilters.time] || 7;
+
+  return referralRecords.filter((item) => {
+    const textBlob = `${item.id} ${item.policyId} ${item.client} ${item.policy} ${item.reason} ${item.assignedTo} ${item.nextAction}`.toLowerCase();
+    const searchMatch = !normalizedSearch || textBlob.includes(normalizedSearch);
+    const statusMatch = referralFilters.status === "All" || item.status === referralFilters.status;
+    const reasonMatch = referralFilters.reason === "All" || item.reason === referralFilters.reason;
+    const assignedMatch = referralFilters.assignedTo === "All" || item.assignedTo === referralFilters.assignedTo;
+    const typeMatch = referralFilters.renewalType === "All" || item.renewalType === referralFilters.renewalType;
+    const clientMatch = referralFilters.client === "All" || item.client === referralFilters.client;
+    const priorityMatch = referralFilters.priority === "All" || item.priority === referralFilters.priority;
+    const sourceMatch = referralFilters.source === "All" || item.source === referralFilters.source;
+    const dueState = getReferralDueState(item.renewalDate);
+    const dueStateMatch = referralFilters.dueState === "All" || dueState === referralFilters.dueState;
+    const days = Math.abs(daysUntil(item.renewalDate));
+    const timeMatch = days <= rangeDays;
+    return searchMatch && statusMatch && reasonMatch && assignedMatch && typeMatch && clientMatch && priorityMatch && sourceMatch && dueStateMatch && timeMatch;
   });
+}
+
+function getReferralMenuActions(item) {
+  const actions = ["Assign owner", "Open policy", "Resolve referral", "Add note"];
+  if (item.batchId) actions.splice(2, 0, "View batch");
+  if (item.allowsLapse) actions.push("Lapse");
+  if (item.allowsRetry) actions.push("Retry");
+  if (item.allowsRerun) actions.push("Re-run");
+  return actions;
+}
+
+function renderReferralKpis(filtered) {
+  if (!referralsKpiGrid) return;
+  const cards = [
+    { key: "open-referrals", label: "Open referrals", value: filtered.filter((i) => i.status === "Open").length },
+    { key: "due-today", label: "Due today", value: filtered.filter((i) => getReferralDueState(i.renewalDate) === "Due today").length },
+    { key: "overdue", label: "Overdue", value: filtered.filter((i) => getReferralDueState(i.renewalDate) === "Overdue").length },
+    { key: "unassigned", label: "Unassigned", value: filtered.filter((i) => i.assignedTo === "All").length },
+    { key: "new-overnight", label: "New overnight referrals", value: filtered.filter((i) => i.source === "Overnight batch").length }
+  ];
+
+  referralsKpiGrid.innerHTML = cards
+    .map((card) => `<div class="kpi-card referrals-kpi-card"><button class="text-action-btn ref-view-more" data-ref-view-more="${card.key}" type="button">View more</button><p class="kpi-label">${card.label}</p><h2>${card.value}</h2><span class="kpi-meta">Current filters</span></div>`)
+    .join("");
+}
+
+function renderReferralQueue(filtered) {
+  if (!referralQueueTableWrap) return;
+  if (!filtered.length) {
+    referralQueueTableWrap.innerHTML = '<p class="empty-state">No referrals match current filters.</p>';
+    renderReferralDetail(null);
+    return;
+  }
+
+  if (!filtered.some((r) => r.id === selectedReferralId)) selectedReferralId = filtered[0].id;
+
+  referralQueueTableWrap.innerHTML = `<table class="ref-queue-table"><thead><tr>
+      <th>Policy / client</th><th>Reason</th><th>Renewal date</th><th>Assigned to</th><th>Status</th><th>Renewal type</th><th>Source</th><th>Next action</th><th>Options</th>
+    </tr></thead><tbody>
+      ${filtered
+        .map((item) => {
+          const actions = getReferralMenuActions(item)
+            .map((a) => `<button type="button" data-ref-menu-action="${a}" data-ref-id="${item.id}" role="menuitem">${a}</button>`)
+            .join("");
+          return `<tr class="ref-queue-row ${item.id === selectedReferralId ? "active" : ""}" data-referral-row="${item.id}">
+            <td><strong>${item.policyId}</strong><div class="row-subtitle">${item.client} · ${item.policy}</div></td>
+            <td>${item.reason}</td>
+            <td>${item.renewalDate}</td>
+            <td>${item.assignedTo === "All" ? "Unassigned" : item.assignedTo}</td>
+            <td><span class="badge ${getBadgeClass(item.status)}">${item.status}</span></td>
+            <td>${item.renewalType}</td>
+            <td>${item.source}</td>
+            <td><span class="priority-pill ${getReferralPriorityClass(item.priority)}">${item.priority}</span><div class="row-subtitle">${item.nextAction}</div></td>
+            <td class="options-cell"><div class="row-options" data-ref-menu-container="${item.id}"><button class="options-trigger" data-ref-menu-trigger="${item.id}" type="button" aria-expanded="${openReferralMenuId === item.id}">⋯</button><div class="row-options-menu ${openReferralMenuId === item.id ? "open" : ""}" data-ref-menu="${item.id}" role="menu">${actions}</div></div></td>
+          </tr>`;
+        })
+        .join("")}
+    </tbody></table>`;
+
+  renderReferralDetail(filtered.find((r) => r.id === selectedReferralId) || null);
+}
+
+function renderReferralDetail(item) {
+  if (!referralDetailContent) return;
+  if (!item) {
+    referralDetailContent.innerHTML = '<p class="empty-state">Select a referral to see details.</p>';
+    return;
+  }
+
+  referralDetailContent.innerHTML = `
+    <div class="detail-block"><h4>Referral summary</h4><p><strong>${item.id}</strong> · ${item.client} · ${item.policyId}</p><p class="row-subtitle">Status: ${item.status} · Priority: ${item.priority}</p></div>
+    <div class="detail-block"><h4>Why referred</h4><p>${item.whyReferred}</p></div>
+    <div class="detail-block"><h4>Policy / renewal details</h4><p><strong>Renewal type:</strong> ${item.renewalType}</p><p><strong>Renewal date:</strong> ${item.renewalDate}</p><p><strong>Assigned to:</strong> ${item.assignedTo === "All" ? "Unassigned" : item.assignedTo}</p></div>
+    <div class="detail-block"><h4>Batch / source context</h4><p><strong>Source:</strong> ${item.source}</p><p><strong>Batch:</strong> ${item.batchId || "No batch context"}</p></div>
+    <div class="detail-block"><h4>Timeline / audit trail</h4><ul class="detail-list">${item.timeline.map((t) => `<li>${t}</li>`).join("")}</ul></div>
+    <div class="detail-block"><h4>Notes</h4><ul class="detail-list">${item.notes.map((n) => `<li>${n}</li>`).join("")}</ul></div>
+    <div class="detail-block"><h4>Activity / history</h4><ul class="detail-list">${item.activity.map((a) => `<li>${a}</li>`).join("")}</ul></div>`;
+}
+
+function renderReferralsGroupedViews(filtered) {
+  if (refBatchGrouped) {
+    const groupedByBatch = filtered.reduce((acc, item) => {
+      const key = item.batchId || "No batch";
+      (acc[key] ||= []).push(item);
+      return acc;
+    }, {});
+
+    const rows = Object.entries(groupedByBatch)
+      .map(([batchId, items]) => `<tr><td>${batchId}</td><td>${items.length}</td><td>${items.filter((i) => i.status === "Open").length}</td><td>${items.map((i) => i.client).filter((v, i, arr) => arr.indexOf(v) === i).join(", ")}</td></tr>`)
+      .join("");
+    refBatchGrouped.innerHTML = `<table class="data-table"><thead><tr><th>Batch</th><th>Referrals</th><th>Open</th><th>Clients</th></tr></thead><tbody>${rows || '<tr><td colspan="4" class="muted">No referrals.</td></tr>'}</tbody></table>`;
+  }
+
+  if (refReasonGrouped) {
+    const groupedByReason = filtered.reduce((acc, item) => {
+      acc[item.reason] = (acc[item.reason] || 0) + 1;
+      return acc;
+    }, {});
+    const rows = Object.entries(groupedByReason)
+      .map(([reason, count]) => `<div class="exception-row"><div><div class="row-subtitle">${reason}</div><div class="exception-track"><div class="exception-fill" style="width:${Math.min((count / filtered.length) * 100, 100)}%"></div></div></div><strong>${count}</strong></div>`)
+      .join("");
+    refReasonGrouped.innerHTML = rows || '<p class="empty-state">No reasons to display.</p>';
+  }
+}
+
+function renderReferralSupportModules(filtered) {
+  if (refBatchSnapshot) {
+    const batchRows = [
+      { id: "RB-4802", type: "Invite", status: "Completed with exceptions", owner: "Night Ops", output: "Partial", oldestDue: "Overdue" },
+      { id: "RB-4801", type: "Accept", status: "Completed", owner: "Marijana Andrevska", output: "Detected", oldestDue: "Due today" },
+      { id: "RB-4798", type: "Invite", status: "Failed", owner: "Platform Ops", output: "Missing", oldestDue: "Overdue" }
+    ];
+
+    refBatchSnapshot.innerHTML = `<table class="data-table"><thead><tr><th>Batch ID</th><th>Type</th><th>Referred count</th><th>Status</th><th>Output detected</th><th>Owner</th><th>Oldest due item</th></tr></thead><tbody>${batchRows
+      .map((row) => `<tr><td>${row.id}</td><td>${row.type}</td><td>${filtered.filter((f) => (f.batchId || "No batch") === row.id).length}</td><td>${row.status}</td><td>${row.output}</td><td>${row.owner}</td><td>${row.oldestDue}</td></tr>`)
+      .join("")}</tbody></table>`;
+  }
+
+  if (refReasonBreakdown) {
+    const reasons = ["Invite issue", "Accept issue", "Lapse / manual review", "Record locked", "Missing data", "Payment / downstream issue", "Other"];
+    const max = Math.max(...reasons.map((r) => filtered.filter((f) => f.reason === r).length), 1);
+    refReasonBreakdown.innerHTML = reasons
+      .map((reason) => {
+        const count = filtered.filter((f) => f.reason === reason).length;
+        return `<div class="reason-breakdown-item"><div><div class="row-subtitle">${reason}</div><div class="reason-breakdown-track"><div class="reason-breakdown-fill" style="width:${(count / max) * 100}%"></div></div></div><strong>${count}</strong></div>`;
+      })
+      .join("");
+  }
+}
+
+function renderReferralsWorkspace() {
+  const filtered = getFilteredReferrals();
+  renderReferralKpis(filtered);
+  renderReferralQueue(filtered);
+  renderReferralsGroupedViews(filtered);
+  renderReferralSupportModules(filtered);
+}
+
+function renderReferrals() {
+  renderReferralsWorkspace();
 }
 
 function getReportMultiplier() {
@@ -550,6 +855,9 @@ function switchView(routeName) {
   if (routeName === "reports") {
     renderReportsView();
   }
+  if (routeName === "referrals") {
+    renderReferralsWorkspace();
+  }
 }
 
 function getRouteFromHash() {
@@ -634,6 +942,74 @@ assignedToFilter?.addEventListener("input", (event) => {
   updateAssignedOwnerOptions(event.target.value);
 });
 
+["refTimeFilter", "refStatusFilter", "refReasonFilter", "refAssignedFilter", "refRenewalTypeFilter", "refClientFilter", "refDueStateFilter", "refPriorityFilter", "refSourceFilter"].forEach((id) => {
+  document.getElementById(id)?.addEventListener("change", (event) => {
+    const map = {
+      refTimeFilter: "time",
+      refStatusFilter: "status",
+      refReasonFilter: "reason",
+      refAssignedFilter: "assignedTo",
+      refRenewalTypeFilter: "renewalType",
+      refClientFilter: "client",
+      refDueStateFilter: "dueState",
+      refPriorityFilter: "priority",
+      refSourceFilter: "source"
+    };
+    referralFilters[map[id]] = event.target.value;
+    openReferralMenuId = null;
+    renderReferralsWorkspace();
+  });
+});
+
+document.getElementById("referralSearchInput")?.addEventListener("input", (event) => {
+  referralFilters.search = event.target.value;
+  renderReferralsWorkspace();
+});
+
+document.querySelectorAll("[data-ref-view]").forEach((button) => {
+  button.addEventListener("click", () => {
+    activeReferralView = button.dataset.refView || "queue";
+    document.querySelectorAll("[data-ref-view]").forEach((b) => b.classList.remove("active-switcher"));
+    button.classList.add("active-switcher");
+    document.querySelectorAll(".ref-view-surface").forEach((v) => v.classList.remove("active-ref-view"));
+    const target = document.getElementById(`ref${activeReferralView.charAt(0).toUpperCase() + activeReferralView.slice(1)}View`);
+    target?.classList.add("active-ref-view");
+  });
+});
+
+document.getElementById("refExportBtn")?.addEventListener("click", () => {
+  console.log("Mock export for referrals");
+});
+
+referralQueueTableWrap?.addEventListener("click", (event) => {
+  const target = event.target;
+  if (!(target instanceof HTMLElement)) return;
+
+  const trigger = target.closest("[data-ref-menu-trigger]");
+  if (trigger instanceof HTMLElement) {
+    const id = trigger.dataset.refMenuTrigger;
+    openReferralMenuId = openReferralMenuId === id ? null : id || null;
+    renderReferralsWorkspace();
+    return;
+  }
+
+  const actionButton = target.closest("[data-ref-menu-action]");
+  if (actionButton instanceof HTMLElement) {
+    const action = actionButton.dataset.refMenuAction;
+    const id = actionButton.dataset.refId;
+    console.log(`Mock ${action} on ${id}`);
+    openReferralMenuId = null;
+    renderReferralsWorkspace();
+    return;
+  }
+
+  const row = target.closest("[data-referral-row]");
+  if (row instanceof HTMLElement) {
+    selectedReferralId = row.dataset.referralRow;
+    renderReferralsWorkspace();
+  }
+});
+
 [reportTimeFilter, reportRenewalTypeFilter, reportBrandFilter, reportBusinessLineFilter].forEach((el) => {
   el?.addEventListener("change", () => {
     reportFilters.time = reportTimeFilter?.value || "7 days";
@@ -683,6 +1059,17 @@ document.addEventListener("click", (event) => {
   if (!clickedInsideMenu && openBatchMenuId) {
     openBatchMenuId = null;
     renderBatchReportsTable();
+  }
+
+  const clickedInsideReferralMenu = target.closest("[data-ref-menu-container]");
+  if (!clickedInsideReferralMenu && openReferralMenuId) {
+    openReferralMenuId = null;
+    renderReferralsWorkspace();
+  }
+
+  const referralViewMore = target.closest(".ref-view-more");
+  if (referralViewMore instanceof HTMLElement) {
+    console.log(`View more clicked for ${referralViewMore.dataset.refViewMore || "referrals"}`);
   }
 
   const viewMoreBtn = target.closest(".report-view-more");
