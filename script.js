@@ -179,8 +179,6 @@ const renewalTypeFilter = document.getElementById("renewalTypeFilter");
 const assignedToFilter = document.getElementById("assignedToFilter");
 const assignedToOptions = document.getElementById("assignedToOptions");
 
-const reportsOutcomesChart = document.getElementById("reportsOutcomesChart");
-const reportsDueChart = document.getElementById("reportsDueChart");
 const reportsKpiGrid = document.getElementById("reportsKpiGrid");
 const recentBatchRunsBody = document.getElementById("recentBatchRunsBody");
 const exceptionBreakdown = document.getElementById("exceptionBreakdown");
@@ -192,6 +190,17 @@ const reportRenewalTypeFilter = document.getElementById("reportRenewalTypeFilter
 const reportBrandFilter = document.getElementById("reportBrandFilter");
 const reportBusinessLineFilter = document.getElementById("reportBusinessLineFilter");
 const reportDownloadAction = document.getElementById("reportDownloadAction");
+
+let openBatchMenuId = null;
+
+const timeContextLabelMap = {
+  "7 days": "Last 7 days",
+  "14 days": "Last 14 days",
+  Month: "Last month",
+  "3 months": "Last 3 months",
+  "6 months": "Last 6 months",
+  "12 months": "Last 12 months"
+};
 
 const assignedOwners = ["Marijana Andrevska", "Laurence Abbott", "Katerina Danilovska", "Andrej Cilkov", "Mark Feltwell"];
 const overviewFilters = { time: "7 days", renewalType: "All", assignedTo: "Marijana Andrevska" };
@@ -428,59 +437,27 @@ function getFilteredReportRows() {
   });
 }
 
+function getTimeContextLabel() {
+  return timeContextLabelMap[reportFilters.time] || "Last 7 days";
+}
+
 function renderReportKpis() {
   if (!reportsKpiGrid) return;
   const mult = getReportMultiplier();
+  const context = getTimeContextLabel();
   const data = [
-    { label: "Batches run", value: Math.round(reportBase.kpis.batchesRun * (mult / 4)) },
-    { label: "Policies processed", value: Math.round(reportBase.kpis.policiesProcessed * (mult / 4)).toLocaleString() },
-    { label: "Success rate", value: `${(reportBase.kpis.successRate - (mult > 10 ? 0.6 : 0)).toFixed(1)}%` },
-    { label: "Exceptions", value: Math.round(reportBase.kpis.exceptions * (mult / 4)) },
-    { label: "Missing outputs", value: Math.max(1, Math.round(reportBase.kpis.missingOutputs * (mult / 4))) }
+    { label: "Batches run", value: Math.round(reportBase.kpis.batchesRun * (mult / 4)), key: "batches-run" },
+    { label: "Policies processed", value: Math.round(reportBase.kpis.policiesProcessed * (mult / 4)).toLocaleString(), key: "policies-processed" },
+    { label: "Success rate", value: `${(reportBase.kpis.successRate - (mult > 10 ? 0.6 : 0)).toFixed(1)}%`, key: "success-rate" },
+    { label: "Exceptions", value: Math.round(reportBase.kpis.exceptions * (mult / 4)), key: "exceptions" },
+    { label: "Missing outputs", value: Math.max(1, Math.round(reportBase.kpis.missingOutputs * (mult / 4))), key: "missing-outputs" }
   ];
 
   reportsKpiGrid.innerHTML = data
     .map(
-      (item) => `<div class="kpi-card"><p class="kpi-label">${item.label}</p><h2>${item.value}</h2><span class="kpi-meta">Filtered by ${reportFilters.time}</span></div>`
+      (item) => `<div class="kpi-card report-kpi-card"><button class="text-action-btn report-view-more" data-view-more="kpi-${item.key}" type="button">View more</button><p class="kpi-label">${item.label}</p><h2>${item.value}</h2><span class="kpi-meta">${context}</span></div>`
     )
     .join("");
-}
-
-function renderStackedOutcomesChart() {
-  if (!reportsOutcomesChart) return;
-  reportsOutcomesChart.innerHTML = "";
-
-  const rows = reportBase.outcomesOverTime.map((row) => {
-    const typeScale = reportFilters.renewalType === "All" ? 1 : 0.42;
-    return {
-      period: row.period,
-      invite: Math.round(row.invite * typeScale),
-      accept: Math.round(row.accept * typeScale),
-      lapse: Math.round(row.lapse * typeScale),
-      exception: Math.round(row.exception * typeScale)
-    };
-  });
-
-  rows.forEach((row) => {
-    const total = row.invite + row.accept + row.lapse + row.exception;
-    const item = document.createElement("div");
-    item.className = "stacked-row";
-    item.innerHTML = `
-      <div class="stacked-label">${row.period}</div>
-      <div class="stacked-bar-wrap" title="Invite ${row.invite}, Accept ${row.accept}, Lapse ${row.lapse}, Exception ${row.exception}">
-        <span class="stacked-segment seg-invite" style="width:${(row.invite / total) * 100}%"></span>
-        <span class="stacked-segment seg-accept" style="width:${(row.accept / total) * 100}%"></span>
-        <span class="stacked-segment seg-lapse" style="width:${(row.lapse / total) * 100}%"></span>
-        <span class="stacked-segment seg-exception" style="width:${(row.exception / total) * 100}%"></span>
-      </div>
-    `;
-    reportsOutcomesChart.appendChild(item);
-  });
-}
-
-function renderReportsDueChart() {
-  const adjusted = reportBase.dueForRenewal.map((item) => ({ ...item, value: Math.round(item.value * (getReportMultiplier() / 4)) }));
-  renderBarChart(reportsDueChart, adjusted, "bar-secondary");
 }
 
 function renderRecentBatchRuns() {
@@ -538,9 +515,16 @@ function renderBatchReportsTable() {
       <td>${row.success}</td>
       <td>${row.exceptions}</td>
       <td>${row.output}</td>
-      <td><button class="inline-btn" data-download="csv" data-batch="${row.batchId}">CSV</button></td>
-      <td><button class="inline-btn" data-download="xlsx" data-batch="${row.batchId}">XLSX</button></td>
-      <td><button class="inline-btn" data-view-details="${row.batchId}">View</button></td>
+      <td class="options-cell">
+        <div class="row-options" data-menu-container="${row.batchId}">
+          <button class="options-trigger" data-menu-trigger="${row.batchId}" aria-haspopup="true" aria-expanded="${openBatchMenuId === row.batchId}" aria-label="Open options for ${row.batchId}" type="button">⋯</button>
+          <div class="row-options-menu ${openBatchMenuId === row.batchId ? "open" : ""}" data-menu="${row.batchId}" role="menu">
+            <button type="button" data-menu-action="view" data-batch="${row.batchId}" role="menuitem">View</button>
+            <button type="button" data-menu-action="csv" data-batch="${row.batchId}" role="menuitem">Download CSV</button>
+            <button type="button" data-menu-action="xlsx" data-batch="${row.batchId}" role="menuitem">Download XLSX</button>
+          </div>
+        </div>
+      </td>
     </tr>`
     )
     .join("");
@@ -548,8 +532,6 @@ function renderBatchReportsTable() {
 
 function renderReportsView() {
   renderReportKpis();
-  renderStackedOutcomesChart();
-  renderReportsDueChart();
   renderRecentBatchRuns();
   renderExceptionBreakdown();
   renderMonitoringSignals();
@@ -659,6 +641,7 @@ assignedToFilter?.addEventListener("input", (event) => {
     reportFilters.renewalType = reportRenewalTypeFilter?.value || "All";
     reportFilters.brand = reportBrandFilter?.value || "All";
     reportFilters.businessLine = reportBusinessLineFilter?.value || "All";
+    openBatchMenuId = null;
     renderReportsView();
   });
 });
@@ -674,17 +657,39 @@ batchReportsBody?.addEventListener("click", (event) => {
   const target = event.target;
   if (!(target instanceof HTMLElement)) return;
 
-  const batchId = target.dataset.batch || target.dataset.viewDetails;
-  if (!batchId) return;
-
-  if (target.dataset.download) {
-    console.log(`Mock download ${target.dataset.download.toUpperCase()} for ${batchId}`);
-    alert(`Mock download ${target.dataset.download.toUpperCase()} for ${batchId}`);
+  const trigger = target.closest("[data-menu-trigger]");
+  if (trigger instanceof HTMLElement) {
+    const batchId = trigger.dataset.menuTrigger;
+    openBatchMenuId = openBatchMenuId === batchId ? null : batchId || null;
+    renderBatchReportsTable();
+    return;
   }
 
-  if (target.dataset.viewDetails) {
-    console.log(`View details for ${batchId}`);
-    alert(`Mock details panel for ${batchId}`);
+  const actionBtn = target.closest("[data-menu-action]");
+  if (actionBtn instanceof HTMLElement) {
+    const batchId = actionBtn.dataset.batch;
+    const action = actionBtn.dataset.menuAction;
+    if (!batchId || !action) return;
+    console.log(`Mock ${action} action for ${batchId}`);
+    openBatchMenuId = null;
+    renderBatchReportsTable();
+    return;
+  }
+});
+
+document.addEventListener("click", (event) => {
+  const target = event.target;
+  if (!(target instanceof HTMLElement)) return;
+  const clickedInsideMenu = target.closest("[data-menu-container]");
+  if (!clickedInsideMenu && openBatchMenuId) {
+    openBatchMenuId = null;
+    renderBatchReportsTable();
+  }
+
+  const viewMoreBtn = target.closest(".report-view-more");
+  if (viewMoreBtn instanceof HTMLElement) {
+    const area = viewMoreBtn.dataset.viewMore || "section";
+    console.log(`View more clicked for ${area}`);
   }
 });
 
