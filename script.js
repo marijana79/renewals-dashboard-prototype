@@ -160,7 +160,6 @@ let selectedRenewalId = null;
 
 const routeToView = {
   overview: "overviewView",
-  createRenewal: "createRenewalView",
   batchHealth: "batchHealthView",
   reports: "reportsView",
   referrals: "referralsView"
