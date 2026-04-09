@@ -371,127 +371,163 @@ const timeContextLabelMap = {
 };
 
 const assignedOwners = ["Marijana Andrevska", "Laurence Abbott", "Katerina Danilovska", "Andrej Cilkov", "Mark Feltwell"];
-
-const overviewFilters = {
-  time: "7 days",
-  renewalType: "All",
-  assignedTo: "Marijana Andrevska"
-};
-
-function daysUntil(dateString) {
-  const now = new Date();
-  const date = new Date(`${dateString}T00:00:00`);
-  const diffMs = date.getTime() - now.setHours(0, 0, 0, 0);
-  return Math.round(diffMs / (1000 * 60 * 60 * 24));
-}
+const overviewFilters = { time: "7 days", renewalType: "All", assignedTo: "Marijana Andrevska" };
 
 function getBadgeClass(status) {
-  const normalized = status.toLowerCase();
-  if (normalized.includes("blocked") || normalized.includes("failed")) return "blocked";
-  if (normalized.includes("risk") || normalized.includes("warning")) return "atrisk";
-  if (normalized.includes("review")) return "review";
-  if (normalized.includes("ready") || normalized.includes("completed")) return "ready";
-  if (normalized.includes("quoted") || normalized.includes("progress")) return "progress";
-  return "warning";
+  if (status === "Blocked" || status === "Failed" || status === "No output detected") return "blocked";
+  if (status === "At risk" || status === "Completed with exceptions") return "atrisk";
+  if (status === "Needs review") return "review";
+  if (status === "Ready" || status === "Completed") return "ready";
+  if (status === "In progress") return "quoted";
+  return "";
 }
 
-function getStatusColor(status) {
-  const cls = getBadgeClass(status);
-  if (cls === "blocked") return "#ef4444";
-  if (cls === "atrisk") return "#f59e0b";
-  if (cls === "review") return "#d97706";
-  if (cls === "ready") return "#10b981";
-  return "#3b82f6";
+function monthLabel(dateString) {
+  const date = new Date(dateString);
+  return date.toLocaleDateString("en-GB", { month: "short", year: "2-digit" });
 }
 
-function getFilteredRenewals() {
-  return renewals.filter((item) => {
-    const matchesStatus = currentFilter === "all" || item.status === currentFilter;
-    const normalizedSearch = currentSearch.trim().toLowerCase();
-    const matchesSearch =
-      !normalizedSearch ||
-      [item.id, item.customer, item.broker, item.policy, item.owner, item.exceptionType]
-        .join(" ")
-        .toLowerCase()
-        .includes(normalizedSearch);
+function daysUntil(dateString) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const target = new Date(dateString);
+  target.setHours(0, 0, 0, 0);
+  return Math.ceil((target - today) / (1000 * 60 * 60 * 24));
+}
 
-    const typeMatches = overviewFilters.renewalType === "All" || item.status.includes(overviewFilters.renewalType) || item.policy.includes(overviewFilters.renewalType) || item.exceptionType.includes(overviewFilters.renewalType);
+function renderBarChart(container, entries, barClass) {
+  if (!container) return;
+  container.innerHTML = "";
+  if (!entries.length) {
+    container.innerHTML = '<p class="muted">No data available.</p>';
+    return;
+  }
 
-    const assignedMatches = !overviewFilters.assignedTo || item.owner.toLowerCase().includes(overviewFilters.assignedTo.toLowerCase());
+  const maxValue = Math.max(...entries.map((entry) => entry.value), 1);
+  entries.forEach((entry) => {
+    const group = document.createElement("div");
+    group.className = "bar-group";
 
-    return matchesStatus && matchesSearch && typeMatches && assignedMatches;
+    const wrap = document.createElement("div");
+    wrap.className = "bar-wrap";
+
+    const bar = document.createElement("div");
+    bar.className = `bar ${barClass}`;
+    bar.style.height = `${Math.max((entry.value / maxValue) * 160, 8)}px`;
+    bar.title = `${entry.label}: ${entry.value}`;
+
+    const value = document.createElement("span");
+    value.className = "bar-value";
+    value.textContent = entry.value;
+
+    const label = document.createElement("div");
+    label.className = "bar-label";
+    label.textContent = entry.label;
+
+    bar.appendChild(value);
+    wrap.appendChild(bar);
+    group.appendChild(wrap);
+    group.appendChild(label);
+    container.appendChild(group);
   });
+}
+
+function renderRenewalsOverTimeChart() {
+  const totalsByMonth = renewals.reduce((acc, renewal) => {
+    const label = monthLabel(renewal.renewalDate);
+    acc[label] = (acc[label] || 0) + 1;
+    return acc;
+  }, {});
+
+  const chartData = Object.entries(totalsByMonth).map(([label, value]) => ({ label, value }));
+  renderBarChart(renewalsOverTimeChart, chartData, "bar-primary");
+}
+
+function renderDueForRenewalsChart() {
+  const buckets = [
+    { label: "0-7d", value: 0 },
+    { label: "8-14d", value: 0 },
+    { label: "15-30d", value: 0 },
+    { label: "31+d", value: 0 }
+  ];
+
+  renewals.forEach((renewal) => {
+    const days = daysUntil(renewal.renewalDate);
+    if (days <= 7) buckets[0].value += 1;
+    else if (days <= 14) buckets[1].value += 1;
+    else if (days <= 30) buckets[2].value += 1;
+    else buckets[3].value += 1;
+  });
+
+  renderBarChart(dueForRenewalsChart, buckets, "bar-secondary");
 }
 
 function renderRenewals() {
   if (!renewalList) return;
-  const filtered = getFilteredRenewals();
   renewalList.innerHTML = "";
+
+  const filtered = renewals.filter((item) => {
+    const matchesStatus = currentFilter === "all" || item.status === currentFilter;
+    const text = `${item.customer} ${item.policy} ${item.broker} ${item.owner} ${item.id}`.toLowerCase();
+    const matchesSearch = text.includes(currentSearch.toLowerCase());
+    return matchesStatus && matchesSearch;
+  });
 
   filtered.forEach((item) => {
     const div = document.createElement("div");
-    div.className = `renewal-item ${selectedRenewalId === item.id ? "active" : ""}`;
+    div.className = "renewal-item";
+    if (item.id === selectedRenewalId) div.classList.add("active");
+
     div.innerHTML = `
       <div class="row-top">
         <div>
-          <div class="row-title">${item.id} · ${item.customer}</div>
-          <div class="row-subtitle">${item.policy} · ${item.broker}</div>
+          <div class="row-title">${item.customer}</div>
+          <div class="row-subtitle">${item.policy} • ${item.broker} • ${item.id}</div>
         </div>
         <span class="badge ${getBadgeClass(item.status)}">${item.status}</span>
       </div>
-      <div class="row-subtitle">Renewal date: ${item.renewalDate} · Owner: ${item.owner}</div>
-      <div class="row-subtitle">Exception: ${item.exceptionType} · Last update: ${item.lastUpdated}</div>
+      <div class="row-subtitle">Renewal date: ${item.renewalDate}</div>
+      <div class="row-subtitle">Owner: ${item.owner} | Premium: ${item.premium} | Progress: ${item.progress}%</div>
     `;
+
     div.addEventListener("click", () => {
       selectedRenewalId = item.id;
       renderRenewals();
       renderDetail(item);
     });
+
     renewalList.appendChild(div);
   });
 
-  const selected = filtered.find((item) => item.id === selectedRenewalId) || filtered[0];
-  selectedRenewalId = selected?.id || null;
-  renderDetail(selected || null);
+  if (!filtered.length) {
+    renewalList.innerHTML = '<p class="muted">No renewals found for this filter.</p>';
+  }
 }
 
 function renderDetail(item) {
   if (!detailContent) return;
-
-  if (!item) {
-    detailContent.innerHTML = `
-      <h3>Select a renewal</h3>
-      <p class="muted">No renewals match current filters.</p>
-    `;
-    return;
-  }
-
   detailContent.innerHTML = `
     <div class="detail-section">
-      <h3>${item.id} · ${item.customer}</h3>
-      <p class="muted">${item.policy} · ${item.brand} · ${item.lob}</p>
-      <p class="muted">Renewal date: ${item.renewalDate} · Premium: ${item.premium}</p>
-      <p class="muted">Owner: ${item.owner} · Progress: ${item.progress}%</p>
+      <h2>${item.customer}</h2>
+      <p class="muted">${item.policy} • ${item.id} • ${item.lob}</p>
+    </div>
+    <div class="detail-section">
+      <h4>Status</h4>
       <span class="badge ${getBadgeClass(item.status)}">${item.status}</span>
     </div>
-
     <div class="detail-section">
-      <h4>Current context</h4>
-      <p>${item.notes}</p>
+      <h4>Renewal summary</h4>
+      <p><strong>Owner:</strong> ${item.owner}</p>
+      <p><strong>Renewal date:</strong> ${item.renewalDate}</p>
+      <p><strong>Premium:</strong> ${item.premium}</p>
+      <p><strong>Last updated:</strong> ${item.lastUpdated}</p>
+      <p><strong>Exception type:</strong> ${item.exceptionType}</p>
     </div>
-
-    <div class="detail-section">
-      <h4>Blockers</h4>
-      ${item.blockers.length ? `<ul>${item.blockers.map((b) => `<li>${b}</li>`).join("")}</ul>` : '<p class="muted">No blockers.</p>'}
-    </div>
-
-    <div class="detail-section">
-      <h4>Suggested next actions</h4>
-      <ul>${item.actions.map((a) => `<li>${a}</li>`).join("")}</ul>
-    </div>
-
+    <div class="detail-section"><h4>What is happening</h4><p>${item.notes}</p></div>
+    <div class="detail-section"><h4>Blockers</h4>${item.blockers.length ? `<ul>${item.blockers.map((b) => `<li>${b}</li>`).join("")}</ul>` : '<p class="muted">No blockers recorded.</p>'}</div>
+    <div class="detail-section"><h4>Suggested next actions</h4><ul>${item.actions.map((a) => `<li>${a}</li>`).join("")}</ul></div>
     <div class="detail-actions">
-      <button class="detail-action" onclick="alert('Mock action: Chase broker')">Chase broker</button>
+      <button class="primary-btn" onclick="alert('Mock action: Resolve exception')">Resolve exception</button>
       <button class="detail-action" onclick="alert('Mock action: Assign owner')">Assign owner</button>
       <button class="detail-action" onclick="alert('Mock action: Open renewal record')">Open renewal record</button>
     </div>
@@ -1125,179 +1161,119 @@ function showToast(message) {
   requestAnimationFrame(() => toast.classList.add("visible"));
   const dismiss = () => {
     toast.classList.remove("visible");
-    setTimeout(() => toast.remove(), 180);
+    setTimeout(() => toast.remove(), 200);
   };
 
   toast.querySelector(".toast-close")?.addEventListener("click", dismiss);
-  setTimeout(dismiss, 4200);
+  setTimeout(dismiss, 3000);
 }
 
-function getModalFocusableElements() {
-  if (!newRenewalModal) return [];
-  return Array.from(newRenewalModal.querySelectorAll(focusableSelector));
+function getSelectedRenewalType() {
+  const selected = document.querySelector('input[name="renewalType"]:checked');
+  return selected ? selected.value : "Invite";
 }
 
-function openDrawer() {
+function updateRenewalTypeDependentContent() {
+  const type = getSelectedRenewalType();
+  const config = renewalTypeConfig[type] || renewalTypeConfig.Invite;
+  if (autoToggleLabel) autoToggleLabel.textContent = config.autoLabel;
+  if (autoToggleHelp) autoToggleHelp.textContent = config.helperText;
+  if (drawerPrimaryBtn) drawerPrimaryBtn.textContent = config.primaryLabel;
+}
+
+function updateToggleStateText() {
+  if (autoToggleState && autoActionToggle) autoToggleState.textContent = autoActionToggle.checked ? "ON" : "OFF";
+}
+
+function openModal() {
   if (!newRenewalModal || !drawerPanel) return;
   lastFocusedElement = document.activeElement;
   newRenewalModal.classList.add("open");
   newRenewalModal.setAttribute("aria-hidden", "false");
-  document.body.style.overflow = "hidden";
-  const focusables = getModalFocusableElements();
-  (focusables[0] || drawerPanel).focus();
+  document.body.classList.add("modal-open");
+  const focusableElements = drawerPanel.querySelectorAll(focusableSelector);
+  if (focusableElements.length) focusableElements[0].focus();
 }
 
-function closeDrawer() {
+function closeModal() {
   if (!newRenewalModal) return;
   newRenewalModal.classList.remove("open");
   newRenewalModal.setAttribute("aria-hidden", "true");
-  document.body.style.overflow = "";
-  if (lastFocusedElement instanceof HTMLElement) {
+  document.body.classList.remove("modal-open");
+  if (lastFocusedElement && typeof lastFocusedElement.focus === "function") {
     lastFocusedElement.focus();
   }
 }
 
-function updateAutoToggleState() {
-  if (!autoActionToggle || !autoToggleState) return;
-  autoToggleState.textContent = autoActionToggle.checked ? "ON" : "OFF";
+function trapFocusInModal(event) {
+  if (event.key !== "Tab" || !newRenewalModal?.classList.contains("open") || !drawerPanel) return;
+  const focusableElements = Array.from(drawerPanel.querySelectorAll(focusableSelector)).filter((el) => el.offsetParent !== null || el === document.activeElement);
+  if (!focusableElements.length) return;
+  const first = focusableElements[0];
+  const last = focusableElements[focusableElements.length - 1];
+  if (event.shiftKey && document.activeElement === first) {
+    event.preventDefault();
+    last.focus();
+  } else if (!event.shiftKey && document.activeElement === last) {
+    event.preventDefault();
+    first.focus();
+  }
 }
 
-function updateDrawerCopyFromRenewalType(typeValue) {
-  const selectedType = renewalTypeConfig[typeValue] ? typeValue : "Invite";
-  const cfg = renewalTypeConfig[selectedType];
-  if (autoToggleLabel) autoToggleLabel.textContent = cfg.autoLabel;
-  if (autoToggleHelp) autoToggleHelp.textContent = cfg.helperText;
-  if (drawerPrimaryBtn) drawerPrimaryBtn.textContent = cfg.primaryLabel;
+function enforcePartialDate(inputIds) {
+  const values = inputIds.map((id) => document.getElementById(id)?.value.trim() || "");
+  return !values.some(Boolean) || values.every(Boolean);
 }
 
-function resetDrawerForm() {
-  if (!newRenewalForm) return;
-  newRenewalForm.reset();
-  const inviteRadio = newRenewalForm.querySelector('input[name="renewalType"][value="Invite"]');
-  if (inviteRadio instanceof HTMLInputElement) inviteRadio.checked = true;
-  updateDrawerCopyFromRenewalType("Invite");
-  updateAutoToggleState();
-}
+newRenewalBtn?.addEventListener("click", openModal);
+drawerOverlay?.addEventListener("click", closeModal);
+drawerCloseX?.addEventListener("click", closeModal);
+drawerCloseBtn?.addEventListener("click", closeModal);
+autoActionToggle?.addEventListener("change", updateToggleStateText);
 
-newRenewalBtn?.addEventListener("click", () => {
-  resetDrawerForm();
-  openDrawer();
+document.querySelectorAll('input[name="renewalType"]').forEach((radio) => {
+  radio.addEventListener("change", updateRenewalTypeDependentContent);
 });
 
-drawerCloseX?.addEventListener("click", closeDrawer);
-drawerCloseBtn?.addEventListener("click", closeDrawer);
-drawerOverlay?.addEventListener("click", closeDrawer);
+newRenewalForm?.querySelectorAll('input[inputmode="numeric"]').forEach((input) => {
+  input.addEventListener("input", () => {
+    input.value = input.value.replace(/\D/g, "");
+  });
+});
 
-newRenewalModal?.addEventListener("keydown", (event) => {
-  if (event.key === "Escape") {
-    event.preventDefault();
-    closeDrawer();
+newRenewalForm?.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const isStartDateValid = enforcePartialDate(["startDateDay", "startDateMonth", "startDateYear"]);
+  const isEndDateValid = enforcePartialDate(["endDateDay", "endDateMonth", "endDateYear"]);
+  if (!isStartDateValid || !isEndDateValid) {
+    alert("If any part of Start Date or End Date is entered, all date fields for that date are required.");
     return;
   }
 
-  if (event.key === "Tab") {
-    const focusables = getModalFocusableElements();
-    if (!focusables.length) {
-      event.preventDefault();
-      return;
-    }
+  if (drawerPrimaryBtn) drawerPrimaryBtn.disabled = true;
+  await new Promise((resolve) => setTimeout(resolve, 350));
+  if (drawerPrimaryBtn) drawerPrimaryBtn.disabled = false;
+  closeModal();
+  showToast(`New ${getSelectedRenewalType()} renewal batch has been created.`);
+});
 
-    const first = focusables[0];
-    const last = focusables[focusables.length - 1];
-    const active = document.activeElement;
-
-    if (event.shiftKey && active === first) {
-      event.preventDefault();
-      last.focus();
-    } else if (!event.shiftKey && active === last) {
-      event.preventDefault();
-      first.focus();
-    }
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && newRenewalModal?.classList.contains("open")) {
+    closeModal();
   }
+  trapFocusInModal(event);
 });
 
-newRenewalForm?.addEventListener("change", (event) => {
-  const target = event.target;
-  if (!(target instanceof HTMLElement)) return;
-  if (target.matches('input[name="renewalType"]')) {
-    const value = target.getAttribute("value") || "Invite";
-    updateDrawerCopyFromRenewalType(value);
-  }
-});
+window.addEventListener("hashchange", syncRouteFromHash);
 
-autoActionToggle?.addEventListener("change", updateAutoToggleState);
-
-newRenewalForm?.addEventListener("submit", (event) => {
-  event.preventDefault();
-  const formData = new FormData(newRenewalForm);
-  const type = String(formData.get("renewalType") || "Invite");
-  const brand = String(formData.get("brand") || "All");
-  const businessLine = String(formData.get("businessLine") || "All");
-  const start = `${String(formData.get("startDateDay") || "").padStart(2, "0")}/${String(formData.get("startDateMonth") || "").padStart(2, "0")}/${formData.get("startDateYear") || ""}`;
-  const end = `${String(formData.get("endDateDay") || "").padStart(2, "0")}/${String(formData.get("endDateMonth") || "").padStart(2, "0")}/${formData.get("endDateYear") || ""}`;
-  const auto = autoActionToggle?.checked ? "Auto ON" : "Auto OFF";
-
-  showToast(`Mock created: ${type} batch • ${brand} • ${businessLine} • ${start} - ${end} • ${auto}`);
-  closeDrawer();
-});
-
-function renderRenewalsOverTimeChart() {
-  if (!renewalsOverTimeChart) return;
-
-  const values = reportBase.outcomesOverTime.map((point) => point.invite + point.accept + point.lapse);
-  const max = Math.max(...values, 1);
-
-  renewalsOverTimeChart.innerHTML = reportBase.outcomesOverTime
-    .map((point) => {
-      const total = point.invite + point.accept + point.lapse;
-      const height = Math.max(14, Math.round((total / max) * 160));
-      return `
-      <div class="bar-group">
-        <div class="bar-wrap">
-          <div class="bar bar-primary" style="height:${height}px">
-            <span class="bar-value">${total}</span>
-          </div>
-        </div>
-        <span class="bar-label">${point.period}</span>
-      </div>
-    `;
-    })
-    .join("");
-}
-
-function renderDueForRenewalsChart() {
-  if (!dueForRenewalsChart) return;
-
-  const max = Math.max(...reportBase.dueForRenewal.map((point) => point.value), 1);
-
-  dueForRenewalsChart.innerHTML = reportBase.dueForRenewal
-    .map((point) => {
-      const height = Math.max(14, Math.round((point.value / max) * 160));
-      return `
-      <div class="bar-group">
-        <div class="bar-wrap">
-          <div class="bar bar-secondary" style="height:${height}px">
-            <span class="bar-value">${point.value}</span>
-          </div>
-        </div>
-        <span class="bar-label">${point.label}</span>
-      </div>
-    `;
-    })
-    .join("");
-}
-
-function init() {
-  initializeOverviewFilterDefaults();
-  renderRenewals();
-  renderBatches();
-  renderReportsView();
-  renderReferrals();
-  renderRenewalsOverTimeChart();
-  renderDueForRenewalsChart();
-  syncRouteFromHash();
-  updateAssignedOwnerOptions(overviewFilters.assignedTo);
-  window.addEventListener("hashchange", syncRouteFromHash);
-}
-
-init();
+renderRenewals();
+renderBatches();
+renderReferrals();
+renderRenewalsOverTimeChart();
+renderDueForRenewalsChart();
+renderReportsView();
+initializeOverviewFilterDefaults();
+updateAssignedOwnerOptions(overviewFilters.assignedTo);
+updateRenewalTypeDependentContent();
+updateToggleStateText();
+syncRouteFromHash();
