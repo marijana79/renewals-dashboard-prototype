@@ -1,1242 +1,1309 @@
-const renewals = [
-  {
-    id: "RN-10482",
-    customer: "Greenlight",
-    broker: "Aston Brokers",
-    policy: "Commercial Property",
-    lob: "Property",
-    brand: "Gadget",
-    renewalDate: "2026-03-28",
-    premium: "€148,200",
-    status: "At risk",
-    owner: "Priya Shah",
-    progress: 62,
-    exceptionType: "Missing underwriting decision",
-    lastUpdated: "2h ago",
-    notes: "Waiting for underwriter approval after exposure change on 2 locations.",
-    blockers: ["Referral still pending", "Exposure values updated but not reviewed", "Broker expects quote before Friday"],
-    actions: ["Chase underwriting decision", "Confirm revised TIV details", "Prepare fallback terms if referral slips"]
-  },
-  {
-    id: "RN-10411",
-    customer: "Islands",
-    broker: "North Coast",
-    policy: "Fleet",
-    lob: "Motor",
-    brand: "Bicy",
-    renewalDate: "2026-03-24",
-    premium: "€82,450",
-    status: "Needs review",
-    owner: "Marta Klein",
-    progress: 74,
-    exceptionType: "Pricing deviation",
-    lastUpdated: "5h ago",
-    notes: "Premium decrease exceeds delegated authority threshold.",
-    blockers: ["Pricing justification not attached", "Approval route unclear for this segment"],
-    actions: ["Attach pricing rationale", "Route to delegated approver", "Notify broker of review status"]
-  },
-  {
-    id: "RN-10398",
-    customer: "Harbor Group",
-    broker: "Lumen Risk",
-    policy: "Liability",
-    lob: "Casualty",
-    brand: "Tungsten",
-    renewalDate: "2026-03-30",
-    premium: "€231,900",
-    status: "Ready",
-    owner: "Daniel Reed",
-    progress: 91,
-    exceptionType: "None",
-    lastUpdated: "1d ago",
-    notes: "Quote prepared and ready for release pending scheduler run.",
-    blockers: [],
-    actions: ["Release in next batch", "Export quote pack"]
-  },
-  {
-    id: "RN-10467",
-    customer: "Blue Pine",
-    broker: "Axis Advisory",
-    policy: "Cyber",
-    lob: "Specialty",
-    brand: "Gadget",
-    renewalDate: "2026-04-02",
-    premium: "€95,700",
-    status: "Blocked",
-    owner: "Elena Voss",
-    progress: 48,
-    exceptionType: "Missing claims data",
-    lastUpdated: "45m ago",
-    notes: "Claims feed did not arrive for last policy term.",
-    blockers: ["Claims integration timeout", "Cannot rate final terms without loss data", "Customer requested early visibility"],
-    actions: ["Retry claims sync", "Escalate to integration support", "Surface fallback manual upload option"]
-  },
-  {
-    id: "RN-10405",
-    customer: "Oak & Vale",
-    broker: "BridgePoint",
-    policy: "Employers Liability",
-    lob: "Casualty",
-    brand: "Bicy",
-    renewalDate: "2026-03-26",
-    premium: "€44,120",
-    status: "Quoted",
-    owner: "Tom Meyer",
-    progress: 100,
-    exceptionType: "None",
-    lastUpdated: "3h ago",
-    notes: "Quote issued and awaiting broker response.",
-    blockers: [],
-    actions: ["Monitor response", "Send reminder in 2 days"]
-  }
-];
-
-const batches = [
-  { id: "B-2403-A", scheduled: "Tonight, 23:30", status: "Scheduled", ready: 128, blocked: 7, completed: 0 },
-  { id: "B-2403-M", scheduled: "Tomorrow, 09:00", status: "Queued", ready: 52, blocked: 3, completed: 0 },
-  { id: "B-2402-Z", scheduled: "Yesterday, 23:30", status: "Completed", ready: 0, blocked: 0, completed: 143 }
-];
-
-
-const referralRecords = [
-  {
-    id: "REF-9012",
-    policyId: "POL-774119",
-    client: "Islands",
-    policy: "Fleet Prime",
-    reason: "Accept issue",
-    renewalDate: "2026-04-08",
-    assignedTo: "Marijana Andrevska",
-    status: "Open",
-    renewalType: "Accept",
-    source: "Overnight batch",
-    batchId: "RB-4801",
-    priority: "High",
-    nextAction: "Validate accept output",
-    whyReferred: "Accept output generated with 19 exceptions and one missing premium row.",
-    notes: ["Broker asked for status by noon.", "Output contains duplicate policy segment."],
-    timeline: ["08:24 UTC referred from RB-4801", "08:35 UTC ownership assigned", "09:10 UTC triage started"],
-    activity: ["Case opened in operations queue", "Customer team notified in channel #renewals-ops"],
-    allowsLapse: false,
-    allowsRetry: true,
-    allowsRerun: true
-  },
-  {
-    id: "REF-9018",
-    policyId: "POL-998221",
-    client: "Greenlight",
-    policy: "Commercial Property",
-    reason: "Lapse / manual review",
-    renewalDate: "2026-04-07",
-    assignedTo: "Laurence Abbott",
-    status: "In progress",
-    renewalType: "Lapse",
-    source: "Manual prep",
-    batchId: null,
-    priority: "High",
-    nextAction: "Confirm lapse instruction",
-    whyReferred: "Manual lapse request entered but outstanding payment reconciliation was detected.",
-    notes: ["Client requested manual override if payment clears.", "Awaiting finance confirmation."],
-    timeline: ["2026-04-06 17:02 UTC referral created", "2026-04-07 08:15 UTC moved to in progress"],
-    activity: ["Finance ticket FIN-2213 linked", "Manual review checklist started"],
-    allowsLapse: true,
-    allowsRetry: false,
-    allowsRerun: false
-  },
-  {
-    id: "REF-9024",
-    policyId: "POL-442015",
-    client: "Islands",
-    policy: "Household Plus",
-    reason: "Record locked",
-    renewalDate: "2026-04-10",
-    assignedTo: "All",
-    status: "Open",
-    renewalType: "Invite",
-    source: "System generated",
-    batchId: "RB-4802",
-    priority: "Medium",
-    nextAction: "Unlock and replay",
-    whyReferred: "Policy locked by concurrent endorsement update during invite run.",
-    notes: ["No customer impact yet."],
-    timeline: ["08:17 UTC lock conflict detected", "08:18 UTC auto-refer created"],
-    activity: ["Lock owner identified as endorsements service"],
-    allowsLapse: false,
-    allowsRetry: true,
-    allowsRerun: true
-  },
-  {
-    id: "REF-9030",
-    policyId: "POL-118201",
-    client: "Greenlight",
-    policy: "SME Liability",
-    reason: "Missing data",
-    renewalDate: "2026-04-12",
-    assignedTo: "Katerina Danilovska",
-    status: "Open",
-    renewalType: "Invite",
-    source: "Manual prep",
-    batchId: null,
-    priority: "Medium",
-    nextAction: "Request turnover update",
-    whyReferred: "Mandatory turnover field missing from renewal intake record.",
-    notes: ["Advisor can provide data same day."],
-    timeline: ["09:05 UTC manual prep flagged missing turnover"],
-    activity: ["Reminder sent to advisor inbox"],
-    allowsLapse: false,
-    allowsRetry: false,
-    allowsRerun: false
-  },
-  {
-    id: "REF-9033",
-    policyId: "POL-871105",
-    client: "Harbor Group",
-    policy: "Cyber Shield",
-    reason: "Payment / downstream issue",
-    renewalDate: "2026-04-08",
-    assignedTo: "Andrej Cilkov",
-    status: "Resolved",
-    renewalType: "Accept",
-    source: "System generated",
-    batchId: "RB-4798",
-    priority: "Low",
-    nextAction: "Monitor post-fix",
-    whyReferred: "Downstream payment confirmation timed out during accept confirmation.",
-    notes: ["Recovered after retry."],
-    timeline: ["01:39 UTC timeout occurred", "02:01 UTC retry completed", "02:15 UTC resolved"],
-    activity: ["Payment service incident INC-0091 closed"],
-    allowsLapse: false,
-    allowsRetry: true,
-    allowsRerun: false
-  },
-  {
-    id: "REF-9039",
-    policyId: "POL-660714",
-    client: "Blue Pine",
-    policy: "Fleet Standard",
-    reason: "Invite issue",
-    renewalDate: "2026-04-09",
-    assignedTo: "Mark Feltwell",
-    status: "Open",
-    renewalType: "Invite",
-    source: "Overnight batch",
-    batchId: "RB-4802",
-    priority: "High",
-    nextAction: "Re-run invite batch segment",
-    whyReferred: "Invite file produced with malformed policy key for one segment.",
-    notes: ["Batch anomaly appears isolated to one source file."],
-    timeline: ["08:16 UTC anomaly detected", "08:22 UTC referred"],
-    activity: ["Data engineering asked to review transform logs"],
-    allowsLapse: false,
-    allowsRetry: true,
-    allowsRerun: true
-  }
-];
-
-const reportBase = {
-  kpis: {
-    batchesRun: 38,
-    policiesProcessed: 12842,
-    successRate: 96.4,
-    exceptions: 317,
-    missingOutputs: 9
-  },
-  outcomesOverTime: [
-    { period: "Wk 1", invite: 420, accept: 375, lapse: 62, exception: 24 },
-    { period: "Wk 2", invite: 448, accept: 392, lapse: 58, exception: 26 },
-    { period: "Wk 3", invite: 401, accept: 355, lapse: 65, exception: 29 },
-    { period: "Wk 4", invite: 467, accept: 410, lapse: 70, exception: 31 }
-  ],
-  dueForRenewal: [
-    { label: "Next 7 days", value: 284 },
-    { label: "Next 14 days", value: 552 },
-    { label: "Next 30 days", value: 1198 },
-    { label: "Next 60 days", value: 2140 }
-  ],
-  recentBatchRuns: [
-    { id: "RB-4802", type: "Invite", started: "08:15", completed: "08:23", policies: 468, status: "Completed" },
-    { id: "RB-4801", type: "Accept", started: "06:00", completed: "06:20", policies: 395, status: "Completed with exceptions" },
-    { id: "RB-4799", type: "Lapse", started: "03:40", completed: "04:02", policies: 210, status: "No output detected" },
-    { id: "RB-4798", type: "Invite", started: "01:10", completed: "01:38", policies: 512, status: "Failed" },
-    { id: "RB-4797", type: "Accept", started: "00:05", completed: "In progress", policies: 298, status: "In progress" }
-  ],
-  exceptionBreakdown: [
-    { label: "Invite errors", count: 71 },
-    { label: "Accept errors", count: 89 },
-    { label: "Lapse errors", count: 53 },
-    { label: "Record locked", count: 46 },
-    { label: "Payment/update issue", count: 58 }
-  ],
-  monitoringSignals: [
-    { label: "Expected output missing", count: 3 },
-    { label: "Output file empty", count: 2 },
-    { label: "Run delayed", count: 6 },
-    { label: "Downstream process issue", count: 4 }
-  ],
-  batchReports: [
-    { date: "2026-04-08", batchId: "RB-4802", type: "Invite", policies: 468, success: "98.5%", exceptions: 7, output: "invite_20260408_0815.csv" },
-    { date: "2026-04-08", batchId: "RB-4801", type: "Accept", policies: 395, success: "95.2%", exceptions: 19, output: "accept_20260408_0600.csv" },
-    { date: "2026-04-08", batchId: "RB-4799", type: "Lapse", policies: 210, success: "90.0%", exceptions: 21, output: "No output" },
-    { date: "2026-04-07", batchId: "RB-4795", type: "Invite", policies: 522, success: "97.7%", exceptions: 12, output: "invite_20260407_2310.csv" },
-    { date: "2026-04-07", batchId: "RB-4794", type: "Accept", policies: 336, success: "96.1%", exceptions: 13, output: "accept_20260407_2120.csv" },
-    { date: "2026-04-06", batchId: "RB-4788", type: "Lapse", policies: 188, success: "92.0%", exceptions: 15, output: "lapse_20260406_2350.csv" }
-  ]
-};
-
-const reportFilters = {
-  time: "7 days",
-  renewalType: "All",
-  brand: "All",
-  businessLine: "All"
-};
-
-let currentFilter = "all";
-let currentSearch = "";
-let selectedRenewalId = null;
-
-const routeToView = {
-  overview: "overviewView",
-  batchHealth: "batchHealthView",
-  reports: "reportsView",
-  referrals: "referralsView"
-};
-
-const renewalList = document.getElementById("renewalList");
-const detailContent = document.getElementById("detailContent");
-const batchList = document.getElementById("batchList");
-const referralQueueTableWrap = document.getElementById("referralQueueTableWrap");
-const referralDetailContent = document.getElementById("referralDetailContent");
-const referralsKpiGrid = document.getElementById("referralsKpiGrid");
-const refBatchGrouped = document.getElementById("refBatchGrouped");
-const refReasonGrouped = document.getElementById("refReasonGrouped");
-const refBatchSnapshot = document.getElementById("refBatchSnapshot");
-const refReasonBreakdown = document.getElementById("refReasonBreakdown");
-const searchInput = document.getElementById("searchInput");
-const renewalsOverTimeChart = document.getElementById("renewalsOverTimeChart");
-const dueForRenewalsChart = document.getElementById("dueForRenewalsChart");
-const newRenewalBtn = document.getElementById("newRenewalBtn");
-const timeFilter = document.getElementById("timeFilter");
-const renewalTypeFilter = document.getElementById("renewalTypeFilter");
-const assignedToFilter = document.getElementById("assignedToFilter");
-const assignedToOptions = document.getElementById("assignedToOptions");
-
-const reportsKpiGrid = document.getElementById("reportsKpiGrid");
-const recentBatchRunsBody = document.getElementById("recentBatchRunsBody");
-const exceptionBreakdown = document.getElementById("exceptionBreakdown");
-const monitoringSignals = document.getElementById("monitoringSignals");
-const batchReportsBody = document.getElementById("batchReportsBody");
-
-const reportTimeFilter = document.getElementById("reportTimeFilter");
-const reportRenewalTypeFilter = document.getElementById("reportRenewalTypeFilter");
-const reportBrandFilter = document.getElementById("reportBrandFilter");
-const reportBusinessLineFilter = document.getElementById("reportBusinessLineFilter");
-const reportDownloadAction = document.getElementById("reportDownloadAction");
-
-let openBatchMenuId = null;
-let selectedReferralId = referralRecords[0]?.id || null;
-let openReferralMenuId = null;
-let activeReferralView = "queue";
-
-const referralFilters = {
-  search: "",
-  time: "7 days",
-  status: "Open",
-  reason: "All",
-  assignedTo: "All",
-  renewalType: "All",
-  client: "All",
-  dueState: "All",
-  priority: "All",
-  source: "All"
-};
-
-const timeContextLabelMap = {
-  "7 days": "Last 7 days",
-  "14 days": "Last 14 days",
-  Month: "Last month",
-  "3 months": "Last 3 months",
-  "6 months": "Last 6 months",
-  "12 months": "Last 12 months"
-};
-
-const assignedOwners = ["Marijana Andrevska", "Laurence Abbott", "Katerina Danilovska", "Andrej Cilkov", "Mark Feltwell"];
-const overviewFilters = { time: "7 days", renewalType: "All", assignedTo: "Marijana Andrevska" };
-
-function getBadgeClass(status) {
-  if (status === "Blocked" || status === "Failed" || status === "No output detected") return "blocked";
-  if (status === "At risk" || status === "Completed with exceptions") return "atrisk";
-  if (status === "Needs review") return "review";
-  if (status === "Ready" || status === "Completed") return "ready";
-  if (status === "In progress") return "quoted";
-  return "";
+* {
+  box-sizing: border-box;
 }
 
-function monthLabel(dateString) {
-  const date = new Date(dateString);
-  return date.toLocaleDateString("en-GB", { month: "short", year: "2-digit" });
+:root {
+  --font-family-primary: "Proxima Soft", "Proxima Nova", "Avenir Next", Avenir, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --new-renewal-btn-resting: #0f40c5;
+  --new-renewal-btn-hover: #3f66d1;
+  --new-renewal-btn-active: #092676;
+  --panel-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  --border-color: #d1d5db;
 }
 
-function daysUntil(dateString) {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const target = new Date(dateString);
-  target.setHours(0, 0, 0, 0);
-  return Math.ceil((target - today) / (1000 * 60 * 60 * 24));
+body {
+  margin: 0;
+  font-family: var(--font-family-primary);
+  background: #f4f6f8;
+  color: #1f2937;
 }
 
-function renderBarChart(container, entries, barClass) {
-  if (!container) return;
-  container.innerHTML = "";
-  if (!entries.length) {
-    container.innerHTML = '<p class="muted">No data available.</p>';
-    return;
-  }
-
-  const maxValue = Math.max(...entries.map((entry) => entry.value), 1);
-  entries.forEach((entry) => {
-    const group = document.createElement("div");
-    group.className = "bar-group";
-
-    const wrap = document.createElement("div");
-    wrap.className = "bar-wrap";
-
-    const bar = document.createElement("div");
-    bar.className = `bar ${barClass}`;
-    bar.style.height = `${Math.max((entry.value / maxValue) * 160, 8)}px`;
-    bar.title = `${entry.label}: ${entry.value}`;
-
-    const value = document.createElement("span");
-    value.className = "bar-value";
-    value.textContent = entry.value;
-
-    const label = document.createElement("div");
-    label.className = "bar-label";
-    label.textContent = entry.label;
-
-    bar.appendChild(value);
-    wrap.appendChild(bar);
-    group.appendChild(wrap);
-    group.appendChild(label);
-    container.appendChild(group);
-  });
+button,
+input,
+select,
+textarea {
+  font: inherit;
 }
 
-function renderRenewalsOverTimeChart() {
-  const totalsByMonth = renewals.reduce((acc, renewal) => {
-    const label = monthLabel(renewal.renewalDate);
-    acc[label] = (acc[label] || 0) + 1;
-    return acc;
-  }, {});
-
-  const chartData = Object.entries(totalsByMonth).map(([label, value]) => ({ label, value }));
-  renderBarChart(renewalsOverTimeChart, chartData, "bar-primary");
+.app-shell {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  height: 100vh;
+  min-height: 100vh;
+  overflow: hidden;
 }
 
-function renderDueForRenewalsChart() {
-  const buckets = [
-    { label: "0-7d", value: 0 },
-    { label: "8-14d", value: 0 },
-    { label: "15-30d", value: 0 },
-    { label: "31+d", value: 0 }
-  ];
-
-  renewals.forEach((renewal) => {
-    const days = daysUntil(renewal.renewalDate);
-    if (days <= 7) buckets[0].value += 1;
-    else if (days <= 14) buckets[1].value += 1;
-    else if (days <= 30) buckets[2].value += 1;
-    else buckets[3].value += 1;
-  });
-
-  renderBarChart(dueForRenewalsChart, buckets, "bar-secondary");
+.sidebar {
+  background: #0f40c5;
+  color: white;
+  padding: 24px 16px;
+  position: sticky;
+  top: 0;
+  align-self: start;
+  height: 100vh;
+  overflow-y: auto;
 }
 
-function renderRenewals() {
-  if (!renewalList) return;
-  renewalList.innerHTML = "";
-
-  const filtered = renewals.filter((item) => {
-    const matchesStatus = currentFilter === "all" || item.status === currentFilter;
-    const text = `${item.customer} ${item.policy} ${item.broker} ${item.owner} ${item.id}`.toLowerCase();
-    const matchesSearch = text.includes(currentSearch.toLowerCase());
-    return matchesStatus && matchesSearch;
-  });
-
-  filtered.forEach((item) => {
-    const div = document.createElement("div");
-    div.className = "renewal-item";
-    if (item.id === selectedRenewalId) div.classList.add("active");
-
-    div.innerHTML = `
-      <div class="row-top">
-        <div>
-          <div class="row-title">${item.customer}</div>
-          <div class="row-subtitle">${item.policy} • ${item.broker} • ${item.id}</div>
-        </div>
-        <span class="badge ${getBadgeClass(item.status)}">${item.status}</span>
-      </div>
-      <div class="row-subtitle">Renewal date: ${item.renewalDate}</div>
-      <div class="row-subtitle">Owner: ${item.owner} | Premium: ${item.premium} | Progress: ${item.progress}%</div>
-    `;
-
-    div.addEventListener("click", () => {
-      selectedRenewalId = item.id;
-      renderRenewals();
-      renderDetail(item);
-    });
-
-    renewalList.appendChild(div);
-  });
-
-  if (!filtered.length) {
-    renewalList.innerHTML = '<p class="muted">No renewals found for this filter.</p>';
-  }
+.logo {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 32px;
 }
 
-function renderDetail(item) {
-  if (!detailContent) return;
-  detailContent.innerHTML = `
-    <div class="detail-section">
-      <h2>${item.customer}</h2>
-      <p class="muted">${item.policy} • ${item.id} • ${item.lob}</p>
-    </div>
-    <div class="detail-section">
-      <h4>Status</h4>
-      <span class="badge ${getBadgeClass(item.status)}">${item.status}</span>
-    </div>
-    <div class="detail-section">
-      <h4>Renewal summary</h4>
-      <p><strong>Owner:</strong> ${item.owner}</p>
-      <p><strong>Renewal date:</strong> ${item.renewalDate}</p>
-      <p><strong>Premium:</strong> ${item.premium}</p>
-      <p><strong>Last updated:</strong> ${item.lastUpdated}</p>
-      <p><strong>Exception type:</strong> ${item.exceptionType}</p>
-    </div>
-    <div class="detail-section"><h4>What is happening</h4><p>${item.notes}</p></div>
-    <div class="detail-section"><h4>Blockers</h4>${item.blockers.length ? `<ul>${item.blockers.map((b) => `<li>${b}</li>`).join("")}</ul>` : '<p class="muted">No blockers recorded.</p>'}</div>
-    <div class="detail-section"><h4>Suggested next actions</h4><ul>${item.actions.map((a) => `<li>${a}</li>`).join("")}</ul></div>
-    <div class="detail-actions">
-      <button class="primary-btn" onclick="alert('Mock action: Resolve exception')">Resolve exception</button>
-      <button class="detail-action" onclick="alert('Mock action: Assign owner')">Assign owner</button>
-      <button class="detail-action" onclick="alert('Mock action: Open renewal record')">Open renewal record</button>
-    </div>
-  `;
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
-function renderBatches() {
-  if (!batchList) return;
-  batchList.innerHTML = "";
-  batches.forEach((batch) => {
-    const div = document.createElement("div");
-    div.className = "batch-item";
-    div.innerHTML = `
-      <div class="row-top">
-        <div>
-          <div class="row-title">${batch.id}</div>
-          <div class="row-subtitle">${batch.status}</div>
-        </div>
-      </div>
-      <div class="row-subtitle">Scheduled: ${batch.scheduled}</div>
-      <div class="row-subtitle">Ready: ${batch.ready} | Blocked: ${batch.blocked} | Completed: ${batch.completed}</div>
-    `;
-    div.addEventListener("click", () => {
-      alert(`Batch ${batch.id}\n\nStatus: ${batch.status}\nScheduled: ${batch.scheduled}\nReady: ${batch.ready}\nBlocked: ${batch.blocked}\nCompleted: ${batch.completed}`);
-    });
-    batchList.appendChild(div);
-  });
+.nav-item {
+  background: transparent;
+  color: #d1d5db;
+  border: none;
+  padding: 12px 14px;
+  text-align: left;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 15px;
 }
 
-function getReferralDueState(dateString) {
-  const diff = daysUntil(dateString);
-  if (diff < 0) return "Overdue";
-  if (diff === 0) return "Due today";
-  if (diff <= 3) return "Due in 3 days";
-  if (diff <= 7) return "Due this week";
-  return "Future";
+.nav-item:hover {
+  background: #3f66d1;
+  color: white;
 }
 
-function getReferralPriorityClass(priority) {
-  return `priority-${priority.toLowerCase()}`;
+.nav-item.active {
+  background: #092676;
+  color: white;
 }
 
-function getFilteredReferrals() {
-  const normalizedSearch = referralFilters.search.trim().toLowerCase();
-  const rangeDaysMap = { "7 days": 7, "14 days": 14, Month: 30, "3 months": 90, "6 months": 180, "12 months": 365 };
-  const rangeDays = rangeDaysMap[referralFilters.time] || 7;
-
-  return referralRecords.filter((item) => {
-    const textBlob = `${item.id} ${item.policyId} ${item.client} ${item.policy} ${item.reason} ${item.assignedTo} ${item.nextAction}`.toLowerCase();
-    const searchMatch = !normalizedSearch || textBlob.includes(normalizedSearch);
-    const statusMatch = referralFilters.status === "All" || item.status === referralFilters.status;
-    const reasonMatch = referralFilters.reason === "All" || item.reason === referralFilters.reason;
-    const assignedMatch = referralFilters.assignedTo === "All" || item.assignedTo === referralFilters.assignedTo;
-    const typeMatch = referralFilters.renewalType === "All" || item.renewalType === referralFilters.renewalType;
-    const clientMatch = referralFilters.client === "All" || item.client === referralFilters.client;
-    const priorityMatch = referralFilters.priority === "All" || item.priority === referralFilters.priority;
-    const sourceMatch = referralFilters.source === "All" || item.source === referralFilters.source;
-    const dueState = getReferralDueState(item.renewalDate);
-    const dueStateMatch = referralFilters.dueState === "All" || dueState === referralFilters.dueState;
-    const days = Math.abs(daysUntil(item.renewalDate));
-    const timeMatch = days <= rangeDays;
-    return searchMatch && statusMatch && reasonMatch && assignedMatch && typeMatch && clientMatch && priorityMatch && sourceMatch && dueStateMatch && timeMatch;
-  });
+.main-content {
+  padding: 24px;
+  height: 100vh;
+  overflow-y: auto;
 }
 
-function getReferralMenuActions(item) {
-  const actions = ["Assign owner", "Open policy", "Resolve referral", "Add note"];
-  if (item.batchId) actions.splice(2, 0, "View batch");
-  if (item.allowsLapse) actions.push("Lapse");
-  if (item.allowsRetry) actions.push("Retry");
-  if (item.allowsRerun) actions.push("Re-run");
-  return actions;
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 24px;
+  margin-bottom: 24px;
 }
 
-function renderReferralKpis(filtered) {
-  if (!referralsKpiGrid) return;
-  const cards = [
-    { key: "open-referrals", label: "Open referrals", value: filtered.filter((i) => i.status === "Open").length },
-    { key: "due-today", label: "Due today", value: filtered.filter((i) => getReferralDueState(i.renewalDate) === "Due today").length },
-    { key: "overdue", label: "Overdue", value: filtered.filter((i) => getReferralDueState(i.renewalDate) === "Overdue").length },
-    { key: "unassigned", label: "Unassigned", value: filtered.filter((i) => i.assignedTo === "All").length },
-    { key: "new-overnight", label: "New overnight referrals", value: filtered.filter((i) => i.source === "Overnight batch").length }
-  ];
-
-  referralsKpiGrid.innerHTML = cards
-    .map((card) => `<div class="kpi-card referrals-kpi-card"><button class="text-action-btn ref-view-more" data-ref-view-more="${card.key}" type="button">View more</button><p class="kpi-label">${card.label}</p><h2>${card.value}</h2><span class="kpi-meta">Current filters</span></div>`)
-    .join("");
+.eyebrow {
+  font-size: 12px;
+  color: #6b7280;
+  margin: 0 0 8px 0;
 }
 
-function renderReferralQueue(filtered) {
-  if (!referralQueueTableWrap) return;
-  if (!filtered.length) {
-    referralQueueTableWrap.innerHTML = '<p class="empty-state">No referrals match current filters.</p>';
-    renderReferralDetail(null);
-    return;
-  }
-
-  if (!filtered.some((r) => r.id === selectedReferralId)) selectedReferralId = filtered[0].id;
-
-  referralQueueTableWrap.innerHTML = `<table class="ref-queue-table"><thead><tr>
-      <th>Policy / client</th><th>Reason</th><th>Renewal date</th><th>Assigned to</th><th>Status</th><th>Renewal type</th><th>Source</th><th>Next action</th><th>Options</th>
-    </tr></thead><tbody>
-      ${filtered
-        .map((item) => {
-          const actions = getReferralMenuActions(item)
-            .map((a) => `<button type="button" data-ref-menu-action="${a}" data-ref-id="${item.id}" role="menuitem">${a}</button>`)
-            .join("");
-          return `<tr class="ref-queue-row ${item.id === selectedReferralId ? "active" : ""}" data-referral-row="${item.id}">
-            <td><strong>${item.policyId}</strong><div class="row-subtitle">${item.client} · ${item.policy}</div></td>
-            <td>${item.reason}</td>
-            <td>${item.renewalDate}</td>
-            <td>${item.assignedTo === "All" ? "Unassigned" : item.assignedTo}</td>
-            <td><span class="badge ${getBadgeClass(item.status)}">${item.status}</span></td>
-            <td>${item.renewalType}</td>
-            <td>${item.source}</td>
-            <td><span class="priority-pill ${getReferralPriorityClass(item.priority)}">${item.priority}</span><div class="row-subtitle">${item.nextAction}</div></td>
-            <td class="options-cell"><div class="row-options" data-ref-menu-container="${item.id}"><button class="options-trigger" data-ref-menu-trigger="${item.id}" type="button" aria-expanded="${openReferralMenuId === item.id}">⋯</button><div class="row-options-menu ${openReferralMenuId === item.id ? "open" : ""}" data-ref-menu="${item.id}" role="menu">${actions}</div></div></td>
-          </tr>`;
-        })
-        .join("")}
-    </tbody></table>`;
-
-  renderReferralDetail(filtered.find((r) => r.id === selectedReferralId) || null);
+h1 {
+  margin: 0 0 8px 0;
+  font-size: 32px;
 }
 
-function renderReferralDetail(item) {
-  if (!referralDetailContent) return;
-  if (!item) {
-    referralDetailContent.innerHTML = '<p class="empty-state">Select a referral to see details.</p>';
-    return;
-  }
-
-  referralDetailContent.innerHTML = `
-    <div class="detail-block"><h4>Referral summary</h4><p><strong>${item.id}</strong> · ${item.client} · ${item.policyId}</p><p class="row-subtitle">Status: ${item.status} · Priority: ${item.priority}</p></div>
-    <div class="detail-block"><h4>Why referred</h4><p>${item.whyReferred}</p></div>
-    <div class="detail-block"><h4>Policy / renewal details</h4><p><strong>Renewal type:</strong> ${item.renewalType}</p><p><strong>Renewal date:</strong> ${item.renewalDate}</p><p><strong>Assigned to:</strong> ${item.assignedTo === "All" ? "Unassigned" : item.assignedTo}</p></div>
-    <div class="detail-block"><h4>Batch / source context</h4><p><strong>Source:</strong> ${item.source}</p><p><strong>Batch:</strong> ${item.batchId || "No batch context"}</p></div>
-    <div class="detail-block"><h4>Timeline / audit trail</h4><ul class="detail-list">${item.timeline.map((t) => `<li>${t}</li>`).join("")}</ul></div>
-    <div class="detail-block"><h4>Notes</h4><ul class="detail-list">${item.notes.map((n) => `<li>${n}</li>`).join("")}</ul></div>
-    <div class="detail-block"><h4>Activity / history</h4><ul class="detail-list">${item.activity.map((a) => `<li>${a}</li>`).join("")}</ul></div>`;
+h2,
+h3,
+h4,
+p {
+  margin-top: 0;
 }
 
-function renderReferralsGroupedViews(filtered) {
-  if (refBatchGrouped) {
-    const groupedByBatch = filtered.reduce((acc, item) => {
-      const key = item.batchId || "No batch";
-      (acc[key] ||= []).push(item);
-      return acc;
-    }, {});
-
-    const rows = Object.entries(groupedByBatch)
-      .map(([batchId, items]) => `<tr><td>${batchId}</td><td>${items.length}</td><td>${items.filter((i) => i.status === "Open").length}</td><td>${items.map((i) => i.client).filter((v, i, arr) => arr.indexOf(v) === i).join(", ")}</td></tr>`)
-      .join("");
-    refBatchGrouped.innerHTML = `<table class="data-table"><thead><tr><th>Batch</th><th>Referrals</th><th>Open</th><th>Clients</th></tr></thead><tbody>${rows || '<tr><td colspan="4" class="muted">No referrals.</td></tr>'}</tbody></table>`;
-  }
-
-  if (refReasonGrouped) {
-    const groupedByReason = filtered.reduce((acc, item) => {
-      acc[item.reason] = (acc[item.reason] || 0) + 1;
-      return acc;
-    }, {});
-    const rows = Object.entries(groupedByReason)
-      .map(([reason, count]) => `<div class="exception-row"><div><div class="row-subtitle">${reason}</div><div class="exception-track"><div class="exception-fill" style="width:${Math.min((count / filtered.length) * 100, 100)}%"></div></div></div><strong>${count}</strong></div>`)
-      .join("");
-    refReasonGrouped.innerHTML = rows || '<p class="empty-state">No reasons to display.</p>';
-  }
+.subtext {
+  margin: 0;
+  color: #6b7280;
 }
 
-function renderReferralSupportModules(filtered) {
-  if (refBatchSnapshot) {
-    const batchRows = [
-      { id: "RB-4802", type: "Invite", status: "Completed with exceptions", owner: "Night Ops", output: "Partial", oldestDue: "Overdue" },
-      { id: "RB-4801", type: "Accept", status: "Completed", owner: "Marijana Andrevska", output: "Detected", oldestDue: "Due today" },
-      { id: "RB-4798", type: "Invite", status: "Failed", owner: "Platform Ops", output: "Missing", oldestDue: "Overdue" }
-    ];
-
-    refBatchSnapshot.innerHTML = `<table class="data-table"><thead><tr><th>Batch ID</th><th>Type</th><th>Referred count</th><th>Status</th><th>Output detected</th><th>Owner</th><th>Oldest due item</th></tr></thead><tbody>${batchRows
-      .map((row) => `<tr><td>${row.id}</td><td>${row.type}</td><td>${filtered.filter((f) => (f.batchId || "No batch") === row.id).length}</td><td>${row.status}</td><td>${row.output}</td><td>${row.owner}</td><td>${row.oldestDue}</td></tr>`)
-      .join("")}</tbody></table>`;
-  }
-
-  if (refReasonBreakdown) {
-    const reasons = ["Invite issue", "Accept issue", "Lapse / manual review", "Record locked", "Missing data", "Payment / downstream issue", "Other"];
-    const max = Math.max(...reasons.map((r) => filtered.filter((f) => f.reason === r).length), 1);
-    refReasonBreakdown.innerHTML = reasons
-      .map((reason) => {
-        const count = filtered.filter((f) => f.reason === reason).length;
-        return `<div class="reason-breakdown-item"><div><div class="row-subtitle">${reason}</div><div class="reason-breakdown-track"><div class="reason-breakdown-fill" style="width:${(count / max) * 100}%"></div></div></div><strong>${count}</strong></div>`;
-      })
-      .join("");
-  }
+.topbar-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
 }
 
-function renderReferralsWorkspace() {
-  const filtered = getFilteredReferrals();
-  renderReferralKpis(filtered);
-  renderReferralQueue(filtered);
-  renderReferralsGroupedViews(filtered);
-  renderReferralSupportModules(filtered);
+.topbar-actions input {
+  padding: 10px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  min-width: 280px;
+  height: 40px;
+  flex: 1 1 280px;
 }
 
-function renderReferrals() {
-  renderReferralsWorkspace();
+.topbar-actions .primary-btn {
+  height: 40px;
+  white-space: nowrap;
+  flex: 0 0 auto;
 }
 
-function getReportMultiplier() {
-  const map = {
-    "7 days": 1,
-    "14 days": 1.7,
-    Month: 4,
-    "3 months": 12,
-    "6 months": 24,
-    "12 months": 48
-  };
-  return map[reportFilters.time] || 1;
+.panel {
+  background: white;
+  border-radius: 18px;
+  padding: 20px;
+  box-shadow: var(--panel-shadow);
+  margin-bottom: 20px;
 }
 
-function getFilteredReportRows() {
-  return reportBase.batchReports.filter((row) => {
-    const typeMatch = reportFilters.renewalType === "All" || row.type === reportFilters.renewalType;
-    return typeMatch;
-  });
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+  margin-bottom: 16px;
 }
 
-function getTimeContextLabel() {
-  return timeContextLabelMap[reportFilters.time] || "Last 7 days";
+.overview-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-bottom: 24px;
+  align-items: flex-end;
 }
 
-function renderReportKpis() {
-  if (!reportsKpiGrid) return;
-  const mult = getReportMultiplier();
-  const context = getTimeContextLabel();
-  const data = [
-    { label: "Batches run", value: Math.round(reportBase.kpis.batchesRun * (mult / 4)), key: "batches-run" },
-    { label: "Policies processed", value: Math.round(reportBase.kpis.policiesProcessed * (mult / 4)).toLocaleString(), key: "policies-processed" },
-    { label: "Success rate", value: `${(reportBase.kpis.successRate - (mult > 10 ? 0.6 : 0)).toFixed(1)}%`, key: "success-rate" },
-    { label: "Exceptions", value: Math.round(reportBase.kpis.exceptions * (mult / 4)), key: "exceptions" },
-    { label: "Missing outputs", value: Math.max(1, Math.round(reportBase.kpis.missingOutputs * (mult / 4))), key: "missing-outputs" }
-  ];
-
-  reportsKpiGrid.innerHTML = data
-    .map(
-      (item) => `<div class="kpi-card report-kpi-card"><button class="text-action-btn report-view-more" data-view-more="kpi-${item.key}" type="button">View more</button><p class="kpi-label">${item.label}</p><h2>${item.value}</h2><span class="kpi-meta">${context}</span></div>`
-    )
-    .join("");
+.overview-filter-field,
+.report-filter-field {
+  min-width: 190px;
+  flex: 1 1 190px;
 }
 
-function renderRecentBatchRuns() {
-  if (!recentBatchRunsBody) return;
-  const rows = reportBase.recentBatchRuns
-    .filter((r) => reportFilters.renewalType === "All" || r.type === reportFilters.renewalType)
-    .map(
-      (r) => `<tr>
-      <td>${r.id}</td>
-      <td>${r.type}</td>
-      <td>${r.started}</td>
-      <td>${r.completed}</td>
-      <td>${r.policies}</td>
-      <td><span class="badge ${getBadgeClass(r.status)}">${r.status}</span></td>
-    </tr>`
-    )
-    .join("");
-  recentBatchRunsBody.innerHTML = rows || '<tr><td colspan="6" class="muted">No runs for selected filters.</td></tr>';
+.field-label {
+  display: block;
+  margin: 0 0 10px;
+  color: #111827;
+  font-size: 14px;
+  font-weight: 600;
 }
 
-function renderExceptionBreakdown() {
-  if (!exceptionBreakdown) return;
-  const max = Math.max(...reportBase.exceptionBreakdown.map((i) => i.count));
-  exceptionBreakdown.innerHTML = reportBase.exceptionBreakdown
-    .map(
-      (item) => `<div class="exception-row">
-        <div>
-          <div class="row-subtitle">${item.label}</div>
-          <div class="exception-track"><div class="exception-fill" style="width:${(item.count / max) * 100}%"></div></div>
-        </div>
-        <strong>${item.count}</strong>
-      </div>`
-    )
-    .join("");
+.overview-filter-field input,
+.overview-filter-field .select-wrap select,
+.report-filter-field .select-wrap select {
+  width: 100%;
+  min-height: 40px;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 10px 12px;
+  background: #fff;
+  color: #111827;
 }
 
-function renderMonitoringSignals() {
-  if (!monitoringSignals) return;
-  monitoringSignals.innerHTML = reportBase.monitoringSignals
-    .map((signal) => `<div class="signal-card"><p class="row-subtitle">${signal.label}</p><p class="signal-count">${signal.count}</p></div>`)
-    .join("");
+.overview-filter-field input:focus,
+.overview-filter-field .select-wrap select:focus,
+.report-filter-field .select-wrap select:focus,
+.topbar-actions input:focus {
+  outline: none;
+  border-color: #0f40c5;
+  box-shadow: 0 0 0 3px rgba(15, 64, 197, 0.14);
 }
 
-function renderBatchReportsTable() {
-  if (!batchReportsBody) return;
-  const rows = getFilteredReportRows();
-
-  batchReportsBody.innerHTML = rows
-    .map(
-      (row) => `<tr>
-      <td>${row.date}</td>
-      <td>${row.batchId}</td>
-      <td>${row.type}</td>
-      <td>${row.policies}</td>
-      <td>${row.success}</td>
-      <td>${row.exceptions}</td>
-      <td>${row.output}</td>
-      <td class="options-cell">
-        <div class="row-options" data-menu-container="${row.batchId}">
-          <button class="options-trigger" data-menu-trigger="${row.batchId}" aria-haspopup="true" aria-expanded="${openBatchMenuId === row.batchId}" aria-label="Open options for ${row.batchId}" type="button">⋯</button>
-          <div class="row-options-menu ${openBatchMenuId === row.batchId ? "open" : ""}" data-menu="${row.batchId}" role="menu">
-            <button type="button" data-menu-action="view" data-batch="${row.batchId}" role="menuitem">View</button>
-            <button type="button" data-menu-action="csv" data-batch="${row.batchId}" role="menuitem">Download CSV</button>
-            <button type="button" data-menu-action="xlsx" data-batch="${row.batchId}" role="menuitem">Download XLSX</button>
-          </div>
-        </div>
-      </td>
-    </tr>`
-    )
-    .join("");
+.select-wrap {
+  position: relative;
 }
 
-function renderReportsView() {
-  renderReportKpis();
-  renderRecentBatchRuns();
-  renderExceptionBreakdown();
-  renderMonitoringSignals();
-  renderBatchReportsTable();
+.select-wrap::after {
+  content: "";
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid #64748b;
+  border-bottom: 2px solid #64748b;
+  transform: translateY(-70%) rotate(45deg);
+  pointer-events: none;
 }
 
-function switchView(routeName) {
-  const viewId = routeToView[routeName] || routeToView.overview;
-  document.querySelectorAll(".view").forEach((view) => view.classList.remove("active-view"));
-  document.querySelectorAll(".nav-item").forEach((button) => button.classList.remove("active"));
-
-  const viewEl = document.getElementById(viewId);
-  const navEl = document.querySelector(`.nav-item[data-route="${routeName}"]`) || document.querySelector('.nav-item[data-route="overview"]');
-  if (viewEl) viewEl.classList.add("active-view");
-  if (navEl) navEl.classList.add("active");
-
-  if (routeName === "reports") {
-    renderReportsView();
-  }
-  if (routeName === "referrals") {
-    renderReferralsWorkspace();
-  }
+.select-wrap select {
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 34px;
 }
 
-function getRouteFromHash() {
-  const raw = location.hash.replace("#", "").trim();
-  if (!raw) return "overview";
-  return routeToView[raw] ? raw : "overview";
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
-function setRoute(routeName) {
-  const route = routeToView[routeName] ? routeName : "overview";
-  if (location.hash.replace("#", "") !== route) {
-    location.hash = route;
-  } else {
-    switchView(route);
-  }
+.secondary-btn,
+.primary-btn,
+.detail-action,
+.inline-btn {
+  border: none;
+  border-radius: 10px;
+  padding: 10px 14px;
+  cursor: pointer;
+  font-size: 14px;
 }
 
-function syncRouteFromHash() {
-  switchView(getRouteFromHash());
+.primary-btn {
+  background: #111827;
+  color: white;
 }
 
-function initializeOverviewFilterDefaults() {
-  if (timeFilter) timeFilter.value = overviewFilters.time;
-  if (renewalTypeFilter) renewalTypeFilter.value = overviewFilters.renewalType;
-  if (assignedToFilter) assignedToFilter.value = overviewFilters.assignedTo;
+.secondary-btn {
+  background: white;
+  border: 1px solid var(--border-color);
 }
 
-function updateAssignedOwnerOptions(query) {
-  if (!assignedToOptions) return;
-  const normalizedQuery = query.trim().toLowerCase();
-  const filteredOwners = normalizedQuery ? assignedOwners.filter((owner) => owner.toLowerCase().includes(normalizedQuery)) : assignedOwners;
-  assignedToOptions.innerHTML = "";
-  filteredOwners.forEach((owner) => {
-    const option = document.createElement("option");
-    option.value = owner;
-    assignedToOptions.appendChild(option);
-  });
+.inline-btn {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
+  padding: 6px 10px;
+  border-radius: 8px;
 }
 
-document.querySelectorAll(".nav-item").forEach((button) => {
-  button.addEventListener("click", () => {
-    setRoute(button.dataset.route);
-  });
-});
-
-document.querySelectorAll(".filter-btn").forEach((button) => {
-  button.addEventListener("click", () => {
-    document.querySelectorAll(".filter-btn").forEach((b) => b.classList.remove("active-filter"));
-    button.classList.add("active-filter");
-    currentFilter = button.dataset.status;
-    renderRenewals();
-  });
-});
-
-document.querySelectorAll(".filter-kpi").forEach((card) => {
-  card.addEventListener("click", () => {
-    const filter = card.dataset.filter;
-    currentFilter = filter;
-    document.querySelectorAll(".filter-btn").forEach((b) => b.classList.remove("active-filter"));
-    const matchingButton = document.querySelector(`.filter-btn[data-status="${filter}"]`) || document.querySelector('.filter-btn[data-status="all"]');
-    if (matchingButton) matchingButton.classList.add("active-filter");
-    setRoute("overview");
-    renderRenewals();
-  });
-});
-
-searchInput?.addEventListener("input", (event) => {
-  currentSearch = event.target.value;
-  renderRenewals();
-});
-
-timeFilter?.addEventListener("change", (event) => {
-  overviewFilters.time = event.target.value;
-});
-
-renewalTypeFilter?.addEventListener("change", (event) => {
-  overviewFilters.renewalType = event.target.value;
-});
-
-assignedToFilter?.addEventListener("input", (event) => {
-  overviewFilters.assignedTo = event.target.value;
-  updateAssignedOwnerOptions(event.target.value);
-});
-
-["refTimeFilter", "refStatusFilter", "refReasonFilter", "refAssignedFilter", "refRenewalTypeFilter", "refClientFilter", "refDueStateFilter", "refPriorityFilter", "refSourceFilter"].forEach((id) => {
-  document.getElementById(id)?.addEventListener("change", (event) => {
-    const map = {
-      refTimeFilter: "time",
-      refStatusFilter: "status",
-      refReasonFilter: "reason",
-      refAssignedFilter: "assignedTo",
-      refRenewalTypeFilter: "renewalType",
-      refClientFilter: "client",
-      refDueStateFilter: "dueState",
-      refPriorityFilter: "priority",
-      refSourceFilter: "source"
-    };
-    referralFilters[map[id]] = event.target.value;
-    openReferralMenuId = null;
-    renderReferralsWorkspace();
-  });
-});
-
-document.getElementById("referralSearchInput")?.addEventListener("input", (event) => {
-  referralFilters.search = event.target.value;
-  renderReferralsWorkspace();
-});
-
-document.querySelectorAll("[data-ref-view]").forEach((button) => {
-  button.addEventListener("click", () => {
-    activeReferralView = button.dataset.refView || "queue";
-    document.querySelectorAll("[data-ref-view]").forEach((b) => b.classList.remove("active-switcher"));
-    button.classList.add("active-switcher");
-    document.querySelectorAll(".ref-view-surface").forEach((v) => v.classList.remove("active-ref-view"));
-    const target = document.getElementById(`ref${activeReferralView.charAt(0).toUpperCase() + activeReferralView.slice(1)}View`);
-    target?.classList.add("active-ref-view");
-  });
-});
-
-document.getElementById("refExportBtn")?.addEventListener("click", () => {
-  console.log("Mock export for referrals");
-});
-
-referralQueueTableWrap?.addEventListener("click", (event) => {
-  const target = event.target;
-  if (!(target instanceof HTMLElement)) return;
-
-  const trigger = target.closest("[data-ref-menu-trigger]");
-  if (trigger instanceof HTMLElement) {
-    const id = trigger.dataset.refMenuTrigger;
-    openReferralMenuId = openReferralMenuId === id ? null : id || null;
-    renderReferralsWorkspace();
-    return;
-  }
-
-  const actionButton = target.closest("[data-ref-menu-action]");
-  if (actionButton instanceof HTMLElement) {
-    const action = actionButton.dataset.refMenuAction;
-    const id = actionButton.dataset.refId;
-    console.log(`Mock ${action} on ${id}`);
-    openReferralMenuId = null;
-    renderReferralsWorkspace();
-    return;
-  }
-
-  const row = target.closest("[data-referral-row]");
-  if (row instanceof HTMLElement) {
-    selectedReferralId = row.dataset.referralRow;
-    renderReferralsWorkspace();
-  }
-});
-
-[reportTimeFilter, reportRenewalTypeFilter, reportBrandFilter, reportBusinessLineFilter].forEach((el) => {
-  el?.addEventListener("change", () => {
-    reportFilters.time = reportTimeFilter?.value || "7 days";
-    reportFilters.renewalType = reportRenewalTypeFilter?.value || "All";
-    reportFilters.brand = reportBrandFilter?.value || "All";
-    reportFilters.businessLine = reportBusinessLineFilter?.value || "All";
-    openBatchMenuId = null;
-    renderReportsView();
-  });
-});
-
-reportDownloadAction?.addEventListener("change", (event) => {
-  const type = event.target.value;
-  if (!type) return;
-  alert(`Mock download started: ${type.toUpperCase()} report export.`);
-  event.target.value = "";
-});
-
-batchReportsBody?.addEventListener("click", (event) => {
-  const target = event.target;
-  if (!(target instanceof HTMLElement)) return;
-
-  const trigger = target.closest("[data-menu-trigger]");
-  if (trigger instanceof HTMLElement) {
-    const batchId = trigger.dataset.menuTrigger;
-    openBatchMenuId = openBatchMenuId === batchId ? null : batchId || null;
-    renderBatchReportsTable();
-    return;
-  }
-
-  const actionBtn = target.closest("[data-menu-action]");
-  if (actionBtn instanceof HTMLElement) {
-    const batchId = actionBtn.dataset.batch;
-    const action = actionBtn.dataset.menuAction;
-    if (!batchId || !action) return;
-    console.log(`Mock ${action} action for ${batchId}`);
-    openBatchMenuId = null;
-    renderBatchReportsTable();
-    return;
-  }
-});
-
-document.addEventListener("click", (event) => {
-  const target = event.target;
-  if (!(target instanceof HTMLElement)) return;
-  const clickedInsideMenu = target.closest("[data-menu-container]");
-  if (!clickedInsideMenu && openBatchMenuId) {
-    openBatchMenuId = null;
-    renderBatchReportsTable();
-  }
-
-  const clickedInsideReferralMenu = target.closest("[data-ref-menu-container]");
-  if (!clickedInsideReferralMenu && openReferralMenuId) {
-    openReferralMenuId = null;
-    renderReferralsWorkspace();
-  }
-
-  const referralViewMore = target.closest(".ref-view-more");
-  if (referralViewMore instanceof HTMLElement) {
-    console.log(`View more clicked for ${referralViewMore.dataset.refViewMore || "referrals"}`);
-  }
-
-  const viewMoreBtn = target.closest(".report-view-more");
-  if (viewMoreBtn instanceof HTMLElement) {
-    const area = viewMoreBtn.dataset.viewMore || "section";
-    console.log(`View more clicked for ${area}`);
-  }
-});
-
-const newRenewalModal = document.getElementById("newRenewalModal");
-const drawerPanel = newRenewalModal?.querySelector(".drawer-panel");
-const drawerOverlay = newRenewalModal?.querySelector(".drawer-overlay");
-const drawerCloseX = document.getElementById("drawerCloseX");
-const drawerCloseBtn = document.getElementById("drawerCloseBtn");
-const newRenewalForm = document.getElementById("newRenewalForm");
-const autoActionToggle = document.getElementById("autoActionToggle");
-const autoToggleState = document.getElementById("autoToggleState");
-const autoToggleLabel = document.getElementById("autoToggleLabel");
-const autoToggleHelp = document.getElementById("autoToggleHelp");
-const drawerPrimaryBtn = document.getElementById("drawerPrimaryBtn");
-const toastContainer = document.getElementById("toast-container");
-
-const focusableSelector = ['a[href]', 'button:not([disabled])', 'input:not([disabled])', 'select:not([disabled])', 'textarea:not([disabled])', '[tabindex]:not([tabindex="-1"])'].join(",");
-let lastFocusedElement = null;
-
-const renewalTypeConfig = {
-  Invite: {
-    autoLabel: "Create new batch and invite automatically",
-    helperText: "If you turn on this option, the system will create a new batch and invite once it's ready.",
-    primaryLabel: "New Invite Batch"
-  },
-  Accept: {
-    autoLabel: "Create new batch and accept automatically",
-    helperText: "If you turn on this option, the system will create a new batch and accept once it's ready.",
-    primaryLabel: "New Accept Batch"
-  },
-  Lapse: {
-    autoLabel: "Create new batch and lapse automatically",
-    helperText: "If you turn on this option, the system will create a new batch and lapse once it's ready.",
-    primaryLabel: "New Lapse Batch"
-  }
-};
-
-function showToast(message) {
-  if (!toastContainer || !message) return;
-  const toast = document.createElement("div");
-  toast.className = "toast";
-  toast.setAttribute("role", "status");
-  toast.innerHTML = `<p class="toast-message">${message}</p><button class="toast-close" type="button" aria-label="Dismiss notification">×</button>`;
-  toastContainer.appendChild(toast);
-
-  requestAnimationFrame(() => toast.classList.add("visible"));
-  const dismiss = () => {
-    toast.classList.remove("visible");
-    setTimeout(() => toast.remove(), 200);
-  };
-
-  toast.querySelector(".toast-close")?.addEventListener("click", dismiss);
-  setTimeout(dismiss, 3000);
+.inline-btn:hover {
+  background: #dbeafe;
 }
 
-function getSelectedRenewalType() {
-  const selected = document.querySelector('input[name="renewalType"]:checked');
-  return selected ? selected.value : "Invite";
+#newRenewalBtn {
+  background: var(--new-renewal-btn-resting);
+  color: #ffffff;
+  transition: background-color 0.2s ease;
 }
 
-function updateRenewalTypeDependentContent() {
-  const type = getSelectedRenewalType();
-  const config = renewalTypeConfig[type] || renewalTypeConfig.Invite;
-  if (autoToggleLabel) autoToggleLabel.textContent = config.autoLabel;
-  if (autoToggleHelp) autoToggleHelp.textContent = config.helperText;
-  if (drawerPrimaryBtn) drawerPrimaryBtn.textContent = config.primaryLabel;
+#newRenewalBtn:hover {
+  background: var(--new-renewal-btn-hover);
 }
 
-function updateToggleStateText() {
-  if (autoToggleState && autoActionToggle) autoToggleState.textContent = autoActionToggle.checked ? "ON" : "OFF";
+#newRenewalBtn:active {
+  background: var(--new-renewal-btn-active);
 }
 
-function openModal() {
-  if (!newRenewalModal || !drawerPanel) return;
-  lastFocusedElement = document.activeElement;
-  newRenewalModal.classList.add("open");
-  newRenewalModal.setAttribute("aria-hidden", "false");
-  document.body.classList.add("modal-open");
-  const focusableElements = drawerPanel.querySelectorAll(focusableSelector);
-  if (focusableElements.length) focusableElements[0].focus();
+.detail-action {
+  background: #e5e7eb;
 }
 
-function closeModal() {
-  if (!newRenewalModal) return;
-  newRenewalModal.classList.remove("open");
-  newRenewalModal.setAttribute("aria-hidden", "true");
-  document.body.classList.remove("modal-open");
-  if (lastFocusedElement && typeof lastFocusedElement.focus === "function") {
-    lastFocusedElement.focus();
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.reports-kpi-grid {
+  grid-template-columns: repeat(5, 1fr);
+}
+
+.kpi-card {
+  background: white;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: var(--panel-shadow);
+}
+
+.kpi-card h2 {
+  margin: 8px 0;
+}
+
+.kpi-label {
+  margin: 0;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.kpi-meta {
+  color: #4b5563;
+  font-size: 12px;
+}
+
+.filter-kpi {
+  cursor: pointer;
+}
+
+.filter-kpi:hover {
+  outline: 2px solid #cbd5e1;
+}
+
+.chart-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.chart-panel {
+  min-height: 280px;
+}
+
+.bar-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  min-height: 220px;
+  padding-top: 8px;
+}
+
+.bar-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.bar-wrap {
+  width: 100%;
+  min-height: 180px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: linear-gradient(to top, #f3f4f6, #ffffff);
+  border-radius: 10px;
+  padding: 8px 6px;
+}
+
+.bar {
+  width: min(42px, 100%);
+  border-radius: 8px 8px 4px 4px;
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.bar-value {
+  position: absolute;
+  top: -20px;
+  font-size: 12px;
+  color: #374151;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.bar-label {
+  font-size: 12px;
+  color: #4b5563;
+  text-align: center;
+}
+
+.bar-primary {
+  background: #2563eb;
+}
+
+.bar-secondary {
+  background: #14b8a6;
+}
+
+.stacked-chart {
+  display: grid;
+  gap: 12px;
+}
+
+.stacked-row {
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  gap: 12px;
+  align-items: center;
+}
+
+.stacked-label {
+  font-size: 12px;
+  color: #4b5563;
+}
+
+.stacked-bar-wrap {
+  background: #f3f4f6;
+  border-radius: 999px;
+  overflow: hidden;
+  min-height: 20px;
+  display: flex;
+}
+
+.stacked-segment {
+  min-width: 2px;
+}
+
+.seg-invite { background: #3b82f6; }
+.seg-accept { background: #10b981; }
+.seg-lapse { background: #f59e0b; }
+.seg-exception { background: #ef4444; }
+
+.content-grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 20px;
+}
+
+.report-ops-grid {
+  grid-template-columns: 1.6fr 1fr;
+}
+
+.filter-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.filter-btn {
+  background: #f3f4f6;
+  border: none;
+  border-radius: 999px;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.filter-btn.active-filter {
+  background: #111827;
+  color: white;
+}
+
+.renewal-list,
+.exception-list,
+.batch-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.renewal-item,
+.exception-item,
+.batch-item {
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 14px;
+  cursor: pointer;
+  background: #fff;
+}
+
+.renewal-item:hover,
+.exception-item:hover,
+.batch-item:hover {
+  border-color: #9ca3af;
+}
+
+.renewal-item.active {
+  border-color: #111827;
+  background: #f9fafb;
+}
+
+.row-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.row-title {
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.row-subtitle,
+.muted {
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.badge {
+  display: inline-block;
+  font-size: 12px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-weight: bold;
+}
+
+.badge.blocked,
+.badge.failed { background: #fee2e2; color: #991b1b; }
+.badge.atrisk,
+.badge.warning { background: #ffedd5; color: #9a3412; }
+.badge.review { background: #fef3c7; color: #92400e; }
+.badge.ready,
+.badge.completed { background: #dcfce7; color: #166534; }
+.badge.quoted,
+.badge.progress { background: #dbeafe; color: #1d4ed8; }
+
+.detail-section {
+  margin-bottom: 18px;
+}
+
+.detail-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.reports-page-title {
+  margin-bottom: 8px;
+}
+
+.reports-filters-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 18px;
+  align-items: end;
+}
+
+.actionable-header {
+  align-items: center;
+}
+
+.text-action-btn {
+  border: 1px solid transparent;
+  background: transparent;
+  color: #2563eb;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.text-action-btn:hover {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+}
+
+.table-wrap {
+  width: 100%;
+  overflow: auto;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+}
+
+.compact-table-wrap {
+  max-height: 280px;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 720px;
+}
+
+.compact-table {
+  min-width: 560px;
+}
+
+.data-table th,
+.data-table td {
+  text-align: left;
+  padding: 10px 12px;
+  border-bottom: 1px solid #e5e7eb;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.data-table th {
+  background: #f8fafc;
+  color: #4b5563;
+  font-weight: 600;
+}
+
+.data-table tbody tr:hover {
+  background: #f9fafb;
+}
+
+.options-cell {
+  width: 64px;
+  text-align: right;
+  position: relative;
+  overflow: visible;
+}
+
+.row-options {
+  position: relative;
+  display: inline-flex;
+  justify-content: flex-end;
+}
+
+.options-trigger {
+  border: 1px solid #d1d5db;
+  background: #fff;
+  color: #374151;
+  border-radius: 8px;
+  width: 30px;
+  height: 30px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.options-trigger:hover {
+  border-color: #9ca3af;
+  background: #f9fafb;
+}
+
+.row-options-menu {
+  position: absolute;
+  top: 34px;
+  right: 0;
+  display: none;
+  min-width: 148px;
+  background: #fff;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.12);
+  overflow: hidden;
+  z-index: 25;
+}
+
+.row-options-menu.open {
+  display: block;
+}
+
+.row-options-menu button {
+  display: block;
+  width: 100%;
+  border: none;
+  background: transparent;
+  text-align: left;
+  padding: 8px 10px;
+  font-size: 13px;
+  color: #111827;
+  cursor: pointer;
+}
+
+.row-options-menu button:hover {
+  background: #f3f4f6;
+}
+
+.exception-breakdown,
+.reason-breakdown {
+  display: grid;
+  gap: 12px;
+}
+
+.exception-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 12px;
+}
+
+.exception-track {
+  height: 10px;
+  border-radius: 999px;
+  background: #e5e7eb;
+  overflow: hidden;
+  margin-top: 4px;
+}
+
+.exception-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #0f40c5, #3b82f6);
+}
+
+.monitoring-signals-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.signal-card {
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 12px;
+  background: #fff;
+}
+
+.signal-count {
+  margin: 6px 0 0;
+  font-size: 22px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.report-kpi-card {
+  position: relative;
+  min-height: 122px;
+}
+
+.report-kpi-card .report-view-more {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+}
+
+.report-kpi-card .kpi-label {
+  padding-right: 70px;
+}
+
+.drawer-modal {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 60;
+  opacity: 0;
+  transition: opacity 0.18s ease;
+}
+
+.drawer-modal.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.drawer-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.35);
+}
+
+.drawer-panel {
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 100%;
+  width: min(520px, 92vw);
+  background: #ffffff;
+  box-shadow: -8px 0 24px rgba(0, 0, 0, 0.12);
+  transform: translateX(100%);
+  transition: transform 0.22s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.drawer-modal.open .drawer-panel {
+  transform: translateX(0);
+}
+
+.drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 20px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.drawer-header h2 {
+  margin: 0;
+  font-size: 22px;
+}
+
+.drawer-close-icon {
+  border: none;
+  background: transparent;
+  font-size: 26px;
+  line-height: 1;
+  cursor: pointer;
+  color: #4b5563;
+}
+
+.drawer-body {
+  padding: 18px 20px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.form-group {
+  margin-bottom: 18px;
+}
+
+.segmented-control {
+  display: inline-flex;
+  border: 1px solid #d1d5db;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #f8fafc;
+}
+
+.segment-option {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.segment-option input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.segment-option span {
+  display: inline-block;
+  padding: 9px 16px;
+  font-weight: 600;
+  color: #334155;
+  min-width: 84px;
+  text-align: center;
+}
+
+.segment-option + .segment-option span {
+  border-left: 1px solid #e5e7eb;
+}
+
+.segment-option input:checked + span {
+  background: #0f40c5;
+  color: #ffffff;
+}
+
+.date-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.date-row input,
+.form-group .select-wrap select {
+  width: 100%;
+  min-height: 40px;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  padding: 10px 12px;
+  background: #fff;
+}
+
+.date-row input:focus,
+.form-group .select-wrap select:focus {
+  outline: none;
+  border-color: #0f40c5;
+  box-shadow: 0 0 0 3px rgba(15, 64, 197, 0.14);
+}
+
+.auto-group {
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 14px;
+  background: #f9fafb;
+}
+
+.auto-title {
+  margin-bottom: 10px;
+}
+
+.toggle-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.toggle-row input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.toggle-switch {
+  width: 46px;
+  height: 26px;
+  border-radius: 999px;
+  background: #d1d5db;
+  position: relative;
+  transition: background-color 0.2s ease;
+}
+
+.toggle-knob {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #ffffff;
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  transition: left 0.2s ease;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18);
+}
+
+.toggle-row input:checked + .toggle-switch {
+  background: #0f40c5;
+}
+
+.toggle-row input:checked + .toggle-switch .toggle-knob {
+  left: 23px;
+}
+
+.toggle-state {
+  font-size: 12px;
+  font-weight: 700;
+  color: #475569;
+}
+
+.helper-text {
+  margin: 10px 0 0;
+  font-size: 13px;
+  color: #6b7280;
+  line-height: 1.45;
+}
+
+.drawer-footer {
+  border-top: 1px solid #e5e7eb;
+  padding: 14px 20px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.drawer-btn {
+  border-radius: 10px;
+  padding: 9px 14px;
+  font-size: 14px;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+
+.drawer-btn-outline {
+  background: #ffffff;
+  border-color: #d1d5db;
+  color: #111827;
+}
+
+.drawer-btn-primary {
+  background: #0f40c5;
+  border-color: #0f40c5;
+  color: #ffffff;
+}
+
+#toast-container {
+  position: fixed;
+  top: 18px;
+  right: 18px;
+  display: grid;
+  gap: 10px;
+  z-index: 80;
+  width: min(360px, calc(100vw - 36px));
+}
+
+.toast {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: start;
+  gap: 8px;
+  background: #111827;
+  color: #ffffff;
+  border-radius: 12px;
+  padding: 10px 12px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.2);
+  opacity: 0;
+  transform: translateY(-6px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.toast.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.toast-message {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.toast-close {
+  position: relative;
+  top: -2px;
+  border: none;
+  background: transparent;
+  color: #ffffff;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+@media (max-width: 1250px) {
+  .kpi-grid,
+  .reports-kpi-grid,
+  .chart-grid,
+  .content-grid,
+  .report-ops-grid,
+  .monitoring-signals-grid {
+    grid-template-columns: 1fr;
   }
 }
 
-function trapFocusInModal(event) {
-  if (event.key !== "Tab" || !newRenewalModal?.classList.contains("open") || !drawerPanel) return;
-  const focusableElements = Array.from(drawerPanel.querySelectorAll(focusableSelector)).filter((el) => el.offsetParent !== null || el === document.activeElement);
-  if (!focusableElements.length) return;
-  const first = focusableElements[0];
-  const last = focusableElements[focusableElements.length - 1];
-  if (event.shiftKey && document.activeElement === first) {
-    event.preventDefault();
-    last.focus();
-  } else if (!event.shiftKey && document.activeElement === last) {
-    event.preventDefault();
-    first.focus();
+@media (max-width: 1100px) {
+  .app-shell {
+    grid-template-columns: 1fr;
+    height: auto;
+    overflow: visible;
+  }
+
+  .sidebar {
+    position: static;
+    height: auto;
+    overflow: visible;
+    padding-bottom: 12px;
+  }
+
+  .nav {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .topbar {
+    flex-direction: column;
+  }
+
+  .topbar-actions,
+  .topbar-actions input,
+  .topbar-actions .primary-btn {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .main-content {
+    height: auto;
+    overflow: visible;
   }
 }
 
-function enforcePartialDate(inputIds) {
-  const values = inputIds.map((id) => document.getElementById(id)?.value.trim() || "");
-  return !values.some(Boolean) || values.every(Boolean);
+
+.referrals-header-panel {
+  margin-bottom: 16px;
 }
 
-newRenewalBtn?.addEventListener("click", openModal);
-drawerOverlay?.addEventListener("click", closeModal);
-drawerCloseX?.addEventListener("click", closeModal);
-drawerCloseBtn?.addEventListener("click", closeModal);
-autoActionToggle?.addEventListener("change", updateToggleStateText);
+.referrals-filters-row {
+  margin-top: 18px;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(170px, 1fr));
+  gap: 12px;
+  align-items: end;
+}
 
-document.querySelectorAll('input[name="renewalType"]').forEach((radio) => {
-  radio.addEventListener("change", updateRenewalTypeDependentContent);
-});
+.view-switcher {
+  margin-top: 16px;
+  display: inline-flex;
+  border: 1px solid #d1d5db;
+  border-radius: 11px;
+  overflow: hidden;
+}
 
-newRenewalForm?.querySelectorAll('input[inputmode="numeric"]').forEach((input) => {
-  input.addEventListener("input", () => {
-    input.value = input.value.replace(/\D/g, "");
-  });
-});
+.switcher-btn {
+  border: none;
+  background: #f8fafc;
+  padding: 9px 14px;
+  cursor: pointer;
+  color: #334155;
+  font-weight: 600;
+}
 
-newRenewalForm?.addEventListener("submit", async (event) => {
-  event.preventDefault();
-  const isStartDateValid = enforcePartialDate(["startDateDay", "startDateMonth", "startDateYear"]);
-  const isEndDateValid = enforcePartialDate(["endDateDay", "endDateMonth", "endDateYear"]);
-  if (!isStartDateValid || !isEndDateValid) {
-    alert("If any part of Start Date or End Date is entered, all date fields for that date are required.");
-    return;
+.switcher-btn + .switcher-btn {
+  border-left: 1px solid #e5e7eb;
+}
+
+.active-switcher {
+  background: #0f40c5;
+  color: white;
+}
+
+.referrals-kpi-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.referrals-kpi-card {
+  position: relative;
+  min-height: 128px;
+  border: 1px solid #e5e7eb;
+}
+
+.referrals-kpi-card .ref-view-more {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+}
+
+.referrals-kpi-card .kpi-label {
+  padding-right: 70px;
+}
+
+.referrals-kpi-card.re-referral-kpi {
+  border-color: #c7d2fe;
+  background: linear-gradient(180deg, #ffffff, #f8faff);
+}
+
+.referrals-kpi-context {
+  font-size: 12px;
+  color: #4f46e5;
+  font-weight: 600;
+}
+
+.ref-view-surface {
+  display: none;
+}
+
+.ref-view-surface.active-ref-view {
+  display: block;
+}
+
+.ref-main-grid,
+.ref-support-grid {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.ref-queue-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.ref-queue-table th,
+.ref-queue-table td {
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb;
+  padding: 10px 8px;
+  vertical-align: top;
+}
+
+.ref-queue-table th {
+  color: #4b5563;
+  font-weight: 600;
+  background: #f8fafc;
+  white-space: nowrap;
+}
+
+.ref-queue-row {
+  cursor: pointer;
+}
+
+.ref-queue-row:hover {
+  background: #f9fafb;
+}
+
+.ref-queue-row.active {
+  background: #eff6ff;
+}
+
+.referral-type-pill {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 8px;
+  border: 1px solid #d1d5db;
+  color: #475569;
+  background: #f8fafc;
+}
+
+.referral-type-pill.rereferral {
+  border-color: #fca5a5;
+  color: #b91c1c;
+  background: #fef2f2;
+}
+
+.rereferral-highlight {
+  border: 1px solid #fecaca;
+  border-radius: 12px;
+  background: #fff7f7;
+  padding: 10px 12px;
+}
+
+.priority-pill {
+  display: inline-block;
+  border-radius: 999px;
+  padding: 4px 8px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.priority-high {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.priority-medium {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.priority-low {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.detail-block {
+  margin-bottom: 16px;
+}
+
+.detail-block h4 {
+  margin: 0 0 8px;
+}
+
+.detail-list {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.reason-breakdown-list {
+  display: grid;
+  gap: 12px;
+}
+
+.reason-breakdown-item {
+  display: grid;
+  grid-template-columns: 1fr 50px;
+  gap: 10px;
+  align-items: center;
+}
+
+.reason-breakdown-track {
+  height: 10px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: #f3f4f6;
+  margin-top: 4px;
+}
+
+.reason-breakdown-fill {
+  height: 100%;
+  background: #2563eb;
+}
+
+.rereferral-panel {
+  margin-top: 6px;
+}
+
+.rereferral-module {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.rereferral-stat {
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 12px;
+  background: #fff;
+}
+
+.rereferral-stat .label {
+  color: #64748b;
+  font-size: 12px;
+}
+
+.rereferral-stat .value {
+  margin-top: 4px;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.empty-state {
+  color: #6b7280;
+  font-size: 14px;
+}
+
+@media (max-width: 1400px) {
+  .referrals-filters-row {
+    grid-template-columns: repeat(3, minmax(170px, 1fr));
   }
+}
 
-  if (drawerPrimaryBtn) drawerPrimaryBtn.disabled = true;
-  await new Promise((resolve) => setTimeout(resolve, 350));
-  if (drawerPrimaryBtn) drawerPrimaryBtn.disabled = false;
-  closeModal();
-  showToast(`New ${getSelectedRenewalType()} renewal batch has been created.`);
-});
-
-document.addEventListener("keydown", (event) => {
-  if (event.key === "Escape" && newRenewalModal?.classList.contains("open")) {
-    closeModal();
+@media (max-width: 1250px) {
+  .referrals-kpi-grid,
+  .ref-main-grid,
+  .ref-support-grid,
+  .rereferral-module {
+    grid-template-columns: 1fr;
   }
-  trapFocusInModal(event);
-});
+}
 
-window.addEventListener("hashchange", syncRouteFromHash);
-
-renderRenewals();
-renderBatches();
-renderReferrals();
-renderRenewalsOverTimeChart();
-renderDueForRenewalsChart();
-renderReportsView();
-initializeOverviewFilterDefaults();
-updateAssignedOwnerOptions(overviewFilters.assignedTo);
-updateRenewalTypeDependentContent();
-updateToggleStateText();
-syncRouteFromHash();
+@media (max-width: 900px) {
+  .referrals-filters-row {
+    grid-template-columns: 1fr;
+  }
+}
