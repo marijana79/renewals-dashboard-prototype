@@ -571,18 +571,26 @@ p {
 }
 
 .overview-kpi-card {
-  position: relative;
-  padding-top: 44px;
+  display: flex;
+  flex-direction: column;
 }
 
-.overview-kpi-card .overview-view-more {
-  position: absolute;
-  top: 12px;
-  right: 12px;
+.overview-kpi-card .overview-kpi-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
 }
 
 .overview-kpi-card .kpi-label {
-  padding-right: 74px;
+  margin: 0;
+  min-width: 0;
+}
+
+.overview-kpi-card .overview-view-more {
+  margin: 0;
+  flex: 0 0 auto;
 }
 
 .report-kpi-card {
