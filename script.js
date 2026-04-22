@@ -974,6 +974,14 @@ document.querySelectorAll(".filter-kpi").forEach((card) => {
   });
 });
 
+document.querySelectorAll(".overview-view-more").forEach((button) => {
+  button.addEventListener("click", (event) => {
+    event.stopPropagation();
+    const target = button.dataset.overviewViewMore || "overview-summary";
+    console.log(`View more clicked for ${target}`);
+  });
+});
+
 searchInput?.addEventListener("input", (event) => {
   currentSearch = event.target.value;
   renderRenewals();
