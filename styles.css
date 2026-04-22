@@ -570,6 +570,21 @@ p {
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.18);
 }
 
+.overview-kpi-card {
+  position: relative;
+  padding-top: 44px;
+}
+
+.overview-kpi-card .overview-view-more {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+}
+
+.overview-kpi-card .kpi-label {
+  padding-right: 74px;
+}
+
 .report-kpi-card {
   position: relative;
   min-height: 132px;
