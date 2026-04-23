@@ -9,6 +9,8 @@ const renewals = [
     renewalDate: "2026-03-28",
     premium: "€148,200",
     status: "At risk",
+    stage: "Invite",
+    progressState: "Search Queued",
     owner: "Priya Shah",
     progress: 62,
     exceptionType: "Missing underwriting decision",
@@ -27,6 +29,8 @@ const renewals = [
     renewalDate: "2026-03-24",
     premium: "€82,450",
     status: "Needs review",
+    stage: "Invite",
+    progressState: "Search In Progress",
     owner: "Marta Klein",
     progress: 74,
     exceptionType: "Pricing deviation",
@@ -45,6 +49,8 @@ const renewals = [
     renewalDate: "2026-03-30",
     premium: "€231,900",
     status: "Ready",
+    stage: "Invite",
+    progressState: "Invite In Progress",
     owner: "Daniel Reed",
     progress: 91,
     exceptionType: "None",
@@ -63,6 +69,8 @@ const renewals = [
     renewalDate: "2026-04-02",
     premium: "€95,700",
     status: "Blocked",
+    stage: "Invite",
+    progressState: "Invite Completed",
     owner: "Elena Voss",
     progress: 48,
     exceptionType: "Missing claims data",
@@ -81,6 +89,8 @@ const renewals = [
     renewalDate: "2026-03-26",
     premium: "€44,120",
     status: "Quoted",
+    stage: "Accept",
+    progressState: "Search Queued",
     owner: "Tom Meyer",
     progress: 100,
     exceptionType: "None",
@@ -88,8 +98,149 @@ const renewals = [
     notes: "Quote issued and awaiting broker response.",
     blockers: [],
     actions: ["Monitor response", "Send reminder in 2 days"]
+  },
+  {
+    id: "RN-10490",
+    customer: "Northline Foods",
+    broker: "Westford Risk",
+    policy: "Retail Package",
+    lob: "Property",
+    brand: "Gadget",
+    renewalDate: "2026-04-06",
+    premium: "€67,880",
+    status: "Needs review",
+    stage: "Accept",
+    progressState: "Search In Progress",
+    owner: "Leo Grant",
+    progress: 57,
+    exceptionType: "Data mismatch",
+    lastUpdated: "20m ago",
+    notes: "Searching endorsements to reconcile accept payload.",
+    blockers: ["Endorsement sequence mismatch"],
+    actions: ["Validate sequence IDs", "Retry accept sync"]
+  },
+  {
+    id: "RN-10491",
+    customer: "Cedarline",
+    broker: "Apex Agency",
+    policy: "Marine Cargo",
+    lob: "Specialty",
+    brand: "Tungsten",
+    renewalDate: "2026-04-10",
+    premium: "€119,430",
+    status: "At risk",
+    stage: "Accept",
+    progressState: "Accept In Progress",
+    owner: "Nina Park",
+    progress: 69,
+    exceptionType: "Pending acceptance confirmation",
+    lastUpdated: "1h ago",
+    notes: "Accept process is running with one upstream timeout.",
+    blockers: ["Awaiting payment status"],
+    actions: ["Check downstream retries", "Confirm settlement status"]
+  },
+  {
+    id: "RN-10492",
+    customer: "Pioneer Logistics",
+    broker: "Lumen Risk",
+    policy: "Fleet Plus",
+    lob: "Motor",
+    brand: "Bicy",
+    renewalDate: "2026-04-11",
+    premium: "€88,210",
+    status: "Ready",
+    stage: "Accept",
+    progressState: "Accept Completed",
+    owner: "Marta Klein",
+    progress: 97,
+    exceptionType: "None",
+    lastUpdated: "50m ago",
+    notes: "Accept completed and awaiting batch confirmation.",
+    blockers: [],
+    actions: ["Include in next run", "Send update to broker"]
+  },
+  {
+    id: "RN-10493",
+    customer: "Vertex Labs",
+    broker: "BridgePoint",
+    policy: "Technology E&O",
+    lob: "Casualty",
+    brand: "Gadget",
+    renewalDate: "2026-04-14",
+    premium: "€76,540",
+    status: "Blocked",
+    stage: "Lapse",
+    progressState: "Search Queued",
+    owner: "Priya Shah",
+    progress: 33,
+    exceptionType: "Missing lapse mandate",
+    lastUpdated: "15m ago",
+    notes: "Lapse request queued while mandate evidence is collected.",
+    blockers: ["No signed lapse mandate"],
+    actions: ["Request mandate", "Keep account manager informed"]
+  },
+  {
+    id: "RN-10494",
+    customer: "Alta Manufacturing",
+    broker: "North Coast",
+    policy: "Liability Core",
+    lob: "Casualty",
+    brand: "Tungsten",
+    renewalDate: "2026-04-15",
+    premium: "€132,640",
+    status: "Needs review",
+    stage: "Lapse",
+    progressState: "Search In Progress",
+    owner: "Daniel Reed",
+    progress: 43,
+    exceptionType: "Pending finance validation",
+    lastUpdated: "30m ago",
+    notes: "Validating overdue receivables before lapse execution.",
+    blockers: ["Finance validation in progress"],
+    actions: ["Confirm arrears", "Proceed with lapse path"]
+  },
+  {
+    id: "RN-10495",
+    customer: "Summit Retail",
+    broker: "Axis Advisory",
+    policy: "Store Package",
+    lob: "Property",
+    brand: "Bicy",
+    renewalDate: "2026-04-16",
+    premium: "€58,300",
+    status: "At risk",
+    stage: "Lapse",
+    progressState: "Lapse In Progress",
+    owner: "Elena Voss",
+    progress: 55,
+    exceptionType: "Customer dispute",
+    lastUpdated: "2h ago",
+    notes: "Lapse initiated but customer raised dispute for final invoice.",
+    blockers: ["Awaiting dispute outcome"],
+    actions: ["Coordinate with finance", "Track dispute SLA"]
+  },
+  {
+    id: "RN-10496",
+    customer: "Evergreen Hotels",
+    broker: "Aston Brokers",
+    policy: "Hospitality Liability",
+    lob: "Casualty",
+    brand: "Gadget",
+    renewalDate: "2026-04-17",
+    premium: "€172,110",
+    status: "Ready",
+    stage: "Lapse",
+    progressState: "Lapse Completed",
+    owner: "Tom Meyer",
+    progress: 100,
+    exceptionType: "None",
+    lastUpdated: "4h ago",
+    notes: "Lapse completed and downstream records confirmed.",
+    blockers: [],
+    actions: ["Archive case", "Notify servicing team"]
   }
 ];
+
 
 const batches = [
   { id: "B-2403-A", scheduled: "Tonight, 23:30", status: "Scheduled", ready: 128, blocked: 7, completed: 0 },
@@ -305,7 +456,17 @@ const reportFilters = {
   businessLine: "All"
 };
 
-let currentFilter = "all";
+const stageProgressOptions = {
+  Invite: ["Search Queued", "Search In Progress", "Invite In Progress", "Invite Completed"],
+  Accept: ["Search Queued", "Search In Progress", "Accept In Progress", "Accept Completed"],
+  Lapse: ["Search Queued", "Search In Progress", "Lapse In Progress", "Lapse Completed"]
+};
+
+const renewalQueueFilters = {
+  stage: "",
+  progress: ""
+};
+
 let currentSearch = "";
 let selectedRenewalId = null;
 
@@ -335,6 +496,12 @@ const timeFilter = document.getElementById("timeFilter");
 const renewalTypeFilter = document.getElementById("renewalTypeFilter");
 const assignedToFilter = document.getElementById("assignedToFilter");
 const assignedToOptions = document.getElementById("assignedToOptions");
+const renewalQueueFilterWrap = document.getElementById("renewalQueueFilterWrap");
+const renewalQueueFilterBtn = document.getElementById("renewalQueueFilterBtn");
+const renewalQueueFilterPanel = document.getElementById("renewalQueueFilterPanel");
+const queueStageFilter = document.getElementById("queueStageFilter");
+const queueProgressFilter = document.getElementById("queueProgressFilter");
+const queueFilterResetBtn = document.getElementById("queueFilterResetBtn");
 
 const reportsKpiGrid = document.getElementById("reportsKpiGrid");
 const recentBatchRunsBody = document.getElementById("recentBatchRunsBody");
@@ -477,10 +644,11 @@ function renderRenewals() {
   renewalList.innerHTML = "";
 
   const filtered = renewals.filter((item) => {
-    const matchesStatus = currentFilter === "all" || item.status === currentFilter;
-    const text = `${item.customer} ${item.policy} ${item.broker} ${item.owner} ${item.id}`.toLowerCase();
+    const matchesStage = !renewalQueueFilters.stage || item.stage === renewalQueueFilters.stage;
+    const matchesProgress = !renewalQueueFilters.progress || item.progressState === renewalQueueFilters.progress;
+    const text = `${item.customer} ${item.policy} ${item.broker} ${item.owner} ${item.id} ${item.stage} ${item.progressState}`.toLowerCase();
     const matchesSearch = text.includes(currentSearch.toLowerCase());
-    return matchesStatus && matchesSearch;
+    return matchesStage && matchesProgress && matchesSearch;
   });
 
   filtered.forEach((item) => {
@@ -498,6 +666,7 @@ function renderRenewals() {
       </div>
       <div class="row-subtitle">Renewal date: ${item.renewalDate}</div>
       <div class="row-subtitle">Owner: ${item.owner} | Premium: ${item.premium} | Progress: ${item.progress}%</div>
+      <div class="row-subtitle">Stage: ${item.stage} | Progress: ${item.progressState}</div>
     `;
 
     div.addEventListener("click", () => {
@@ -530,6 +699,8 @@ function renderDetail(item) {
       <p><strong>Owner:</strong> ${item.owner}</p>
       <p><strong>Renewal date:</strong> ${item.renewalDate}</p>
       <p><strong>Premium:</strong> ${item.premium}</p>
+      <p><strong>Stage:</strong> ${item.stage}</p>
+      <p><strong>Progress:</strong> ${item.progressState}</p>
       <p><strong>Last updated:</strong> ${item.lastUpdated}</p>
       <p><strong>Exception type:</strong> ${item.exceptionType}</p>
     </div>
@@ -957,30 +1128,79 @@ function updateAssignedOwnerOptions(query) {
   });
 }
 
+function setQueueFilterPanelOpen(isOpen) {
+  if (!renewalQueueFilterPanel || !renewalQueueFilterBtn) return;
+  renewalQueueFilterPanel.hidden = !isOpen;
+  renewalQueueFilterBtn.setAttribute("aria-expanded", String(isOpen));
+}
+
+function syncProgressOptionsForStage() {
+  if (!queueProgressFilter) return;
+  const selectedStage = renewalQueueFilters.stage;
+  const previousProgress = renewalQueueFilters.progress;
+  const options = selectedStage ? stageProgressOptions[selectedStage] || [] : [];
+
+  queueProgressFilter.innerHTML = '<option value="">All progress states</option>';
+  options.forEach((optionValue) => {
+    const option = document.createElement("option");
+    option.value = optionValue;
+    option.textContent = optionValue;
+    queueProgressFilter.appendChild(option);
+  });
+
+  if (previousProgress && options.includes(previousProgress)) {
+    queueProgressFilter.value = previousProgress;
+  } else {
+    renewalQueueFilters.progress = "";
+    queueProgressFilter.value = "";
+  }
+
+  queueProgressFilter.disabled = !selectedStage;
+}
+
+function initializeRenewalQueueFilters() {
+  if (!queueStageFilter || !queueProgressFilter) return;
+  queueStageFilter.value = renewalQueueFilters.stage;
+  syncProgressOptionsForStage();
+  if (renewalQueueFilters.progress) queueProgressFilter.value = renewalQueueFilters.progress;
+  setQueueFilterPanelOpen(false);
+}
+
 document.querySelectorAll(".nav-item").forEach((button) => {
   button.addEventListener("click", () => {
     setRoute(button.dataset.route);
   });
 });
 
-document.querySelectorAll(".filter-btn").forEach((button) => {
-  button.addEventListener("click", () => {
-    document.querySelectorAll(".filter-btn").forEach((b) => b.classList.remove("active-filter"));
-    button.classList.add("active-filter");
-    currentFilter = button.dataset.status;
-    renderRenewals();
-  });
+renewalQueueFilterBtn?.addEventListener("click", (event) => {
+  event.stopPropagation();
+  const shouldOpen = renewalQueueFilterPanel?.hidden;
+  setQueueFilterPanelOpen(Boolean(shouldOpen));
+});
+
+queueStageFilter?.addEventListener("change", (event) => {
+  renewalQueueFilters.stage = event.target.value;
+  renewalQueueFilters.progress = "";
+  syncProgressOptionsForStage();
+  renderRenewals();
+});
+
+queueProgressFilter?.addEventListener("change", (event) => {
+  renewalQueueFilters.progress = event.target.value;
+  renderRenewals();
+});
+
+queueFilterResetBtn?.addEventListener("click", () => {
+  renewalQueueFilters.stage = "";
+  renewalQueueFilters.progress = "";
+  if (queueStageFilter) queueStageFilter.value = "";
+  syncProgressOptionsForStage();
+  renderRenewals();
 });
 
 document.querySelectorAll(".filter-kpi").forEach((card) => {
   card.addEventListener("click", () => {
-    const filter = card.dataset.filter;
-    currentFilter = filter;
-    document.querySelectorAll(".filter-btn").forEach((b) => b.classList.remove("active-filter"));
-    const matchingButton = document.querySelector(`.filter-btn[data-status="${filter}"]`) || document.querySelector('.filter-btn[data-status="all"]');
-    if (matchingButton) matchingButton.classList.add("active-filter");
     setRoute("overview");
-    renderRenewals();
   });
 });
 
@@ -1115,6 +1335,11 @@ document.addEventListener("click", (event) => {
   if (!clickedInsideMenu && openBatchMenuId) {
     openBatchMenuId = null;
     renderBatchReportsTable();
+  }
+
+  const clickedInsideQueueFilters = target.closest("#renewalQueueFilterWrap");
+  if (!clickedInsideQueueFilters && renewalQueueFilterPanel && !renewalQueueFilterPanel.hidden) {
+    setQueueFilterPanelOpen(false);
   }
 
   const clickedInsideReferralMenu = target.closest("[data-ref-menu-container]");
@@ -1292,6 +1517,7 @@ renderRenewalsOverTimeChart();
 renderDueForRenewalsChart();
 renderReportsView();
 initializeOverviewFilterDefaults();
+initializeRenewalQueueFilters();
 updateAssignedOwnerOptions(overviewFilters.assignedTo);
 updateRenewalTypeDependentContent();
 updateToggleStateText();
