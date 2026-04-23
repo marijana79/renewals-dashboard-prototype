@@ -135,15 +135,34 @@
 
         <div class="content-grid">
           <section class="panel">
-            <div class="panel-header">
+            <div class="panel-header renewal-queue-header">
               <h3>Renewal Queue</h3>
-              <div class="filter-group">
-                <button class="filter-btn active-filter" data-status="all">All</button>
-                <button class="filter-btn" data-status="Blocked">Blocked</button>
-                <button class="filter-btn" data-status="At risk">At risk</button>
-                <button class="filter-btn" data-status="Needs review">Needs review</button>
-                <button class="filter-btn" data-status="Ready">Ready</button>
-                <button class="filter-btn" data-status="Quoted">Quoted</button>
+              <div class="renewal-queue-filter-wrap" id="renewalQueueFilterWrap">
+                <button id="renewalQueueFilterBtn" class="secondary-btn queue-filter-trigger" type="button" aria-expanded="false" aria-controls="renewalQueueFilterPanel">Filter</button>
+                <div id="renewalQueueFilterPanel" class="queue-filter-panel" aria-label="Renewal queue filters" hidden>
+                  <div class="queue-filter-field">
+                    <label class="field-label" for="queueStageFilter">Stage</label>
+                    <div class="select-wrap">
+                      <select id="queueStageFilter" name="queueStageFilter">
+                        <option value="">All stages</option>
+                        <option value="Invite">Invite</option>
+                        <option value="Accept">Accept</option>
+                        <option value="Lapse">Lapse</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="queue-filter-field">
+                    <label class="field-label" for="queueProgressFilter">Progress</label>
+                    <div class="select-wrap">
+                      <select id="queueProgressFilter" name="queueProgressFilter">
+                        <option value="">All progress states</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="queue-filter-actions">
+                    <button id="queueFilterResetBtn" class="secondary-btn" type="button">Clear</button>
+                  </div>
+                </div>
               </div>
             </div>
             <div id="renewalList" class="renewal-list"></div>
