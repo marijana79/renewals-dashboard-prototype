@@ -371,7 +371,23 @@ const timeContextLabelMap = {
 };
 
 const assignedOwners = ["Marijana Andrevska", "Laurence Abbott", "Katerina Danilovska", "Andrej Cilkov", "Mark Feltwell"];
-const overviewFilters = { time: "7 days", renewalType: "All", assignedTo: "Marijana Andrevska" };
+const overviewFilters = { time: "12 months", renewalType: "All", assignedTo: "Marijana Andrevska" };
+
+
+const renewalsOverTimeMonthlyData = [
+  { label: "Jan", value: 186 },
+  { label: "Feb", value: 174 },
+  { label: "Mar", value: 201 },
+  { label: "Apr", value: 224 },
+  { label: "May", value: 238 },
+  { label: "Jun", value: 231 },
+  { label: "Jul", value: 247 },
+  { label: "Aug", value: 255 },
+  { label: "Sep", value: 241 },
+  { label: "Oct", value: 267 },
+  { label: "Nov", value: 259 },
+  { label: "Dec", value: 276 }
+];
 
 function getBadgeClass(status) {
   if (status === "Blocked" || status === "Failed" || status === "No output detected") return "blocked";
@@ -433,13 +449,7 @@ function renderBarChart(container, entries, barClass) {
 }
 
 function renderRenewalsOverTimeChart() {
-  const totalsByMonth = renewals.reduce((acc, renewal) => {
-    const label = monthLabel(renewal.renewalDate);
-    acc[label] = (acc[label] || 0) + 1;
-    return acc;
-  }, {});
-
-  const chartData = Object.entries(totalsByMonth).map(([label, value]) => ({ label, value }));
+  const chartData = renewalsOverTimeMonthlyData.map((entry) => ({ ...entry }));
   renderBarChart(renewalsOverTimeChart, chartData, "bar-primary");
 }
 
@@ -989,6 +999,7 @@ searchInput?.addEventListener("input", (event) => {
 
 timeFilter?.addEventListener("change", (event) => {
   overviewFilters.time = event.target.value;
+  renderRenewalsOverTimeChart();
 });
 
 renewalTypeFilter?.addEventListener("change", (event) => {
