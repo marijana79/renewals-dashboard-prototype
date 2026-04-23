@@ -10,9 +10,9 @@ const renewals = [
     premium: "€148,200",
     status: "At risk",
     stage: "Invite",
-    progressState: "Search Queued",
+    progress: "Search Queued",
     owner: "Priya Shah",
-    progress: 62,
+    completion: 62,
     exceptionType: "Missing underwriting decision",
     lastUpdated: "2h ago",
     notes: "Waiting for underwriter approval after exposure change on 2 locations.",
@@ -30,9 +30,9 @@ const renewals = [
     premium: "€82,450",
     status: "Needs review",
     stage: "Invite",
-    progressState: "Search In Progress",
+    progress: "Search In Progress",
     owner: "Marta Klein",
-    progress: 74,
+    completion: 74,
     exceptionType: "Pricing deviation",
     lastUpdated: "5h ago",
     notes: "Premium decrease exceeds delegated authority threshold.",
@@ -50,9 +50,9 @@ const renewals = [
     premium: "€231,900",
     status: "Ready",
     stage: "Invite",
-    progressState: "Invite In Progress",
+    progress: "Invite In Progress",
     owner: "Daniel Reed",
-    progress: 91,
+    completion: 91,
     exceptionType: "None",
     lastUpdated: "1d ago",
     notes: "Quote prepared and ready for release pending scheduler run.",
@@ -70,9 +70,9 @@ const renewals = [
     premium: "€95,700",
     status: "Blocked",
     stage: "Invite",
-    progressState: "Invite Completed",
+    progress: "Invite Completed",
     owner: "Elena Voss",
-    progress: 48,
+    completion: 48,
     exceptionType: "Missing claims data",
     lastUpdated: "45m ago",
     notes: "Claims feed did not arrive for last policy term.",
@@ -90,9 +90,9 @@ const renewals = [
     premium: "€44,120",
     status: "Quoted",
     stage: "Accept",
-    progressState: "Search Queued",
+    progress: "Search Queued",
     owner: "Tom Meyer",
-    progress: 100,
+    completion: 100,
     exceptionType: "None",
     lastUpdated: "3h ago",
     notes: "Quote issued and awaiting broker response.",
@@ -110,9 +110,9 @@ const renewals = [
     premium: "€67,880",
     status: "Needs review",
     stage: "Accept",
-    progressState: "Search In Progress",
+    progress: "Search In Progress",
     owner: "Leo Grant",
-    progress: 57,
+    completion: 57,
     exceptionType: "Data mismatch",
     lastUpdated: "20m ago",
     notes: "Searching endorsements to reconcile accept payload.",
@@ -130,9 +130,9 @@ const renewals = [
     premium: "€119,430",
     status: "At risk",
     stage: "Accept",
-    progressState: "Accept In Progress",
+    progress: "Accept In Progress",
     owner: "Nina Park",
-    progress: 69,
+    completion: 69,
     exceptionType: "Pending acceptance confirmation",
     lastUpdated: "1h ago",
     notes: "Accept process is running with one upstream timeout.",
@@ -150,9 +150,9 @@ const renewals = [
     premium: "€88,210",
     status: "Ready",
     stage: "Accept",
-    progressState: "Accept Completed",
+    progress: "Accept Completed",
     owner: "Marta Klein",
-    progress: 97,
+    completion: 97,
     exceptionType: "None",
     lastUpdated: "50m ago",
     notes: "Accept completed and awaiting batch confirmation.",
@@ -170,9 +170,9 @@ const renewals = [
     premium: "€76,540",
     status: "Blocked",
     stage: "Lapse",
-    progressState: "Search Queued",
+    progress: "Search Queued",
     owner: "Priya Shah",
-    progress: 33,
+    completion: 33,
     exceptionType: "Missing lapse mandate",
     lastUpdated: "15m ago",
     notes: "Lapse request queued while mandate evidence is collected.",
@@ -190,9 +190,9 @@ const renewals = [
     premium: "€132,640",
     status: "Needs review",
     stage: "Lapse",
-    progressState: "Search In Progress",
+    progress: "Search In Progress",
     owner: "Daniel Reed",
-    progress: 43,
+    completion: 43,
     exceptionType: "Pending finance validation",
     lastUpdated: "30m ago",
     notes: "Validating overdue receivables before lapse execution.",
@@ -210,9 +210,9 @@ const renewals = [
     premium: "€58,300",
     status: "At risk",
     stage: "Lapse",
-    progressState: "Lapse In Progress",
+    progress: "Lapse In Progress",
     owner: "Elena Voss",
-    progress: 55,
+    completion: 55,
     exceptionType: "Customer dispute",
     lastUpdated: "2h ago",
     notes: "Lapse initiated but customer raised dispute for final invoice.",
@@ -230,9 +230,9 @@ const renewals = [
     premium: "€172,110",
     status: "Ready",
     stage: "Lapse",
-    progressState: "Lapse Completed",
+    progress: "Lapse Completed",
     owner: "Tom Meyer",
-    progress: 100,
+    completion: 100,
     exceptionType: "None",
     lastUpdated: "4h ago",
     notes: "Lapse completed and downstream records confirmed.",
@@ -467,6 +467,11 @@ const renewalQueueFilters = {
   progress: ""
 };
 
+const renewalQueueFilterDraft = {
+  stage: "",
+  progress: ""
+};
+
 let currentSearch = "";
 let selectedRenewalId = null;
 
@@ -501,7 +506,10 @@ const renewalQueueFilterBtn = document.getElementById("renewalQueueFilterBtn");
 const renewalQueueFilterPanel = document.getElementById("renewalQueueFilterPanel");
 const queueStageFilter = document.getElementById("queueStageFilter");
 const queueProgressFilter = document.getElementById("queueProgressFilter");
-const queueFilterResetBtn = document.getElementById("queueFilterResetBtn");
+const queueFilterApplyBtn = document.getElementById("queueFilterApplyBtn");
+const queueFilterClearBtn = document.getElementById("queueFilterClearBtn");
+const queueAppliedFilters = document.getElementById("queueAppliedFilters");
+const queueFilterActiveDot = document.getElementById("queueFilterActiveDot");
 
 const reportsKpiGrid = document.getElementById("reportsKpiGrid");
 const recentBatchRunsBody = document.getElementById("recentBatchRunsBody");
@@ -645,8 +653,8 @@ function renderRenewals() {
 
   const filtered = renewals.filter((item) => {
     const matchesStage = !renewalQueueFilters.stage || item.stage === renewalQueueFilters.stage;
-    const matchesProgress = !renewalQueueFilters.progress || item.progressState === renewalQueueFilters.progress;
-    const text = `${item.customer} ${item.policy} ${item.broker} ${item.owner} ${item.id} ${item.stage} ${item.progressState}`.toLowerCase();
+    const matchesProgress = !renewalQueueFilters.progress || item.progress === renewalQueueFilters.progress;
+    const text = `${item.customer} ${item.policy} ${item.broker} ${item.owner} ${item.id} ${item.stage} ${item.progress}`.toLowerCase();
     const matchesSearch = text.includes(currentSearch.toLowerCase());
     return matchesStage && matchesProgress && matchesSearch;
   });
@@ -665,8 +673,8 @@ function renderRenewals() {
         <span class="badge ${getBadgeClass(item.status)}">${item.status}</span>
       </div>
       <div class="row-subtitle">Renewal date: ${item.renewalDate}</div>
-      <div class="row-subtitle">Owner: ${item.owner} | Premium: ${item.premium} | Progress: ${item.progress}%</div>
-      <div class="row-subtitle">Stage: ${item.stage} | Progress: ${item.progressState}</div>
+      <div class="row-subtitle">Owner: ${item.owner} | Premium: ${item.premium} | Completion: ${item.completion}%</div>
+      <div class="row-subtitle">Stage: ${item.stage} | Progress: ${item.progress}</div>
     `;
 
     div.addEventListener("click", () => {
@@ -700,7 +708,7 @@ function renderDetail(item) {
       <p><strong>Renewal date:</strong> ${item.renewalDate}</p>
       <p><strong>Premium:</strong> ${item.premium}</p>
       <p><strong>Stage:</strong> ${item.stage}</p>
-      <p><strong>Progress:</strong> ${item.progressState}</p>
+      <p><strong>Progress:</strong> ${item.progress}</p>
       <p><strong>Last updated:</strong> ${item.lastUpdated}</p>
       <p><strong>Exception type:</strong> ${item.exceptionType}</p>
     </div>
@@ -1136,8 +1144,8 @@ function setQueueFilterPanelOpen(isOpen) {
 
 function syncProgressOptionsForStage() {
   if (!queueProgressFilter) return;
-  const selectedStage = renewalQueueFilters.stage;
-  const previousProgress = renewalQueueFilters.progress;
+  const selectedStage = renewalQueueFilterDraft.stage;
+  const previousProgress = renewalQueueFilterDraft.progress;
   const options = selectedStage ? stageProgressOptions[selectedStage] || [] : [];
 
   queueProgressFilter.innerHTML = '<option value="">All progress states</option>';
@@ -1151,19 +1159,41 @@ function syncProgressOptionsForStage() {
   if (previousProgress && options.includes(previousProgress)) {
     queueProgressFilter.value = previousProgress;
   } else {
-    renewalQueueFilters.progress = "";
+    renewalQueueFilterDraft.progress = "";
     queueProgressFilter.value = "";
   }
 
   queueProgressFilter.disabled = !selectedStage;
 }
 
+function renderAppliedQueueFilters() {
+  if (!queueAppliedFilters || !renewalQueueFilterBtn || !queueFilterActiveDot) return;
+
+  const pills = [];
+  if (renewalQueueFilters.stage) {
+    pills.push({ key: "stage", value: renewalQueueFilters.stage });
+  }
+  if (renewalQueueFilters.progress) {
+    pills.push({ key: "progress", value: renewalQueueFilters.progress });
+  }
+
+  renewalQueueFilterBtn.classList.toggle("has-active-filters", pills.length > 0);
+  queueFilterActiveDot.hidden = pills.length === 0;
+
+  queueAppliedFilters.innerHTML = pills
+    .map((pill) => `<span class="queue-applied-pill">${pill.value}<button type="button" data-remove-queue-filter="${pill.key}" aria-label="Remove ${pill.key} filter">×</button></span>`)
+    .join("");
+}
+
 function initializeRenewalQueueFilters() {
   if (!queueStageFilter || !queueProgressFilter) return;
-  queueStageFilter.value = renewalQueueFilters.stage;
+  renewalQueueFilterDraft.stage = renewalQueueFilters.stage;
+  renewalQueueFilterDraft.progress = renewalQueueFilters.progress;
+  queueStageFilter.value = renewalQueueFilterDraft.stage;
   syncProgressOptionsForStage();
-  if (renewalQueueFilters.progress) queueProgressFilter.value = renewalQueueFilters.progress;
+  if (renewalQueueFilterDraft.progress) queueProgressFilter.value = renewalQueueFilterDraft.progress;
   setQueueFilterPanelOpen(false);
+  renderAppliedQueueFilters();
 }
 
 document.querySelectorAll(".nav-item").forEach((button) => {
@@ -1175,26 +1205,68 @@ document.querySelectorAll(".nav-item").forEach((button) => {
 renewalQueueFilterBtn?.addEventListener("click", (event) => {
   event.stopPropagation();
   const shouldOpen = renewalQueueFilterPanel?.hidden;
+  if (shouldOpen) {
+    renewalQueueFilterDraft.stage = renewalQueueFilters.stage;
+    renewalQueueFilterDraft.progress = renewalQueueFilters.progress;
+    if (queueStageFilter) queueStageFilter.value = renewalQueueFilterDraft.stage;
+    syncProgressOptionsForStage();
+    if (queueProgressFilter) queueProgressFilter.value = renewalQueueFilterDraft.progress;
+  }
   setQueueFilterPanelOpen(Boolean(shouldOpen));
 });
 
 queueStageFilter?.addEventListener("change", (event) => {
-  renewalQueueFilters.stage = event.target.value;
-  renewalQueueFilters.progress = "";
+  renewalQueueFilterDraft.stage = event.target.value;
+  renewalQueueFilterDraft.progress = "";
   syncProgressOptionsForStage();
-  renderRenewals();
 });
 
 queueProgressFilter?.addEventListener("change", (event) => {
-  renewalQueueFilters.progress = event.target.value;
-  renderRenewals();
+  renewalQueueFilterDraft.progress = event.target.value;
 });
 
-queueFilterResetBtn?.addEventListener("click", () => {
+queueFilterApplyBtn?.addEventListener("click", () => {
+  renewalQueueFilters.stage = renewalQueueFilterDraft.stage;
+  renewalQueueFilters.progress = renewalQueueFilterDraft.progress;
+  renderAppliedQueueFilters();
+  renderRenewals();
+  setQueueFilterPanelOpen(false);
+});
+
+queueFilterClearBtn?.addEventListener("click", () => {
   renewalQueueFilters.stage = "";
   renewalQueueFilters.progress = "";
+  renewalQueueFilterDraft.stage = "";
+  renewalQueueFilterDraft.progress = "";
   if (queueStageFilter) queueStageFilter.value = "";
   syncProgressOptionsForStage();
+  renderAppliedQueueFilters();
+  renderRenewals();
+  setQueueFilterPanelOpen(false);
+});
+
+queueAppliedFilters?.addEventListener("click", (event) => {
+  const target = event.target;
+  if (!(target instanceof HTMLElement)) return;
+  const removeBtn = target.closest("[data-remove-queue-filter]");
+  if (!(removeBtn instanceof HTMLElement)) return;
+
+  const filterKey = removeBtn.dataset.removeQueueFilter;
+  if (filterKey === "stage") {
+    renewalQueueFilters.stage = "";
+    renewalQueueFilters.progress = "";
+  }
+  if (filterKey === "progress") {
+    renewalQueueFilters.progress = "";
+  }
+
+  renewalQueueFilterDraft.stage = renewalQueueFilters.stage;
+  renewalQueueFilterDraft.progress = renewalQueueFilters.progress;
+  if (queueStageFilter) queueStageFilter.value = renewalQueueFilterDraft.stage;
+  syncProgressOptionsForStage();
+  if (queueProgressFilter) queueProgressFilter.value = renewalQueueFilterDraft.progress;
+
+  renderAppliedQueueFilters();
   renderRenewals();
 });
 
