@@ -341,6 +341,14 @@ p {
   padding-top: 8px;
 }
 
+.monthly-chart {
+  gap: 8px;
+}
+
+.monthly-chart .bar-group {
+  min-width: 0;
+}
+
 .bar-group {
   flex: 1;
   display: flex;
@@ -369,6 +377,10 @@ p {
   justify-content: center;
 }
 
+.monthly-chart .bar {
+  width: min(28px, 100%);
+}
+
 .bar-value {
   position: absolute;
   top: -20px;
@@ -382,6 +394,10 @@ p {
   font-size: 12px;
   color: #4b5563;
   text-align: center;
+}
+
+.monthly-chart .bar-label {
+  font-size: 11px;
 }
 
 .bar-primary {
