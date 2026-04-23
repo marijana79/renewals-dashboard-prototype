@@ -137,8 +137,12 @@
           <section class="panel">
             <div class="panel-header renewal-queue-header">
               <h3>Renewal Queue</h3>
+              <div id="queueAppliedFilters" class="queue-applied-filters" aria-live="polite"></div>
               <div class="renewal-queue-filter-wrap" id="renewalQueueFilterWrap">
-                <button id="renewalQueueFilterBtn" class="secondary-btn queue-filter-trigger" type="button" aria-expanded="false" aria-controls="renewalQueueFilterPanel">Filter</button>
+                <button id="renewalQueueFilterBtn" class="secondary-btn queue-filter-trigger" type="button" aria-expanded="false" aria-controls="renewalQueueFilterPanel">
+                  Filter
+                  <span id="queueFilterActiveDot" class="queue-filter-dot" aria-hidden="true"></span>
+                </button>
                 <div id="renewalQueueFilterPanel" class="queue-filter-panel" aria-label="Renewal queue filters" hidden>
                   <div class="queue-filter-field">
                     <label class="field-label" for="queueStageFilter">Stage</label>
@@ -160,7 +164,8 @@
                     </div>
                   </div>
                   <div class="queue-filter-actions">
-                    <button id="queueFilterResetBtn" class="secondary-btn" type="button">Clear</button>
+                    <button id="queueFilterApplyBtn" class="text-action-btn" type="button">Apply</button>
+                    <button id="queueFilterClearBtn" class="queue-filter-clear-btn" type="button">Clear</button>
                   </div>
                 </div>
               </div>
