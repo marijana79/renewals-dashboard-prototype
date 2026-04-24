@@ -670,6 +670,69 @@ p {
   margin-left: auto;
 }
 
+
+.renewal-card-top {
+  align-items: flex-start;
+}
+
+.renewal-core-grid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.renewal-core-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.renewal-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.renewal-business-line {
+  font-size: 17px;
+  line-height: 1.2;
+  font-weight: 700;
+  color: #111827;
+}
+
+.renewal-brand {
+  font-size: 16px;
+  line-height: 1.2;
+  font-weight: 700;
+  color: #1d4ed8;
+}
+
+.renewal-detail-grid {
+  display: grid;
+  gap: 6px;
+}
+
+.renewal-detail-item {
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-size: 14px;
+  color: #4b5563;
+}
+
+.renewal-value {
+  color: #4b5563;
+}
+
+.renewal-issue-wrap {
+  margin-top: 8px;
+  display: flex;
+  justify-content: flex-end;
+}
+
 .detail-section {
   margin-bottom: 18px;
 }
@@ -1167,6 +1230,11 @@ body.modal-open {
   .report-ops-grid,
   .monitoring-signals-grid {
     grid-template-columns: 1fr;
+  }
+
+  .renewal-core-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
   }
 }
 
