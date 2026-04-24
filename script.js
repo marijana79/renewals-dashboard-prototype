@@ -504,6 +504,11 @@ const assignedToOptions = document.getElementById("assignedToOptions");
 const renewalQueueFilterWrap = document.getElementById("renewalQueueFilterWrap");
 const renewalQueueFilterBtn = document.getElementById("renewalQueueFilterBtn");
 const renewalQueueFilterPanel = document.getElementById("renewalQueueFilterPanel");
+if (renewalQueueFilterPanel) {
+  renewalQueueFilterPanel.hidden = true;
+  renewalQueueFilterPanel.classList.remove("is-open");
+  renewalQueueFilterPanel.setAttribute("aria-hidden", "true");
+}
 const queueStageFilter = document.getElementById("queueStageFilter");
 const queueProgressFilter = document.getElementById("queueProgressFilter");
 const queueFilterApplyBtn = document.getElementById("queueFilterApplyBtn");
@@ -1139,6 +1144,8 @@ function updateAssignedOwnerOptions(query) {
 function setQueueFilterPanelOpen(isOpen) {
   if (!renewalQueueFilterPanel || !renewalQueueFilterBtn) return;
   renewalQueueFilterPanel.hidden = !isOpen;
+  renewalQueueFilterPanel.classList.toggle("is-open", isOpen);
+  renewalQueueFilterPanel.setAttribute("aria-hidden", String(!isOpen));
   renewalQueueFilterBtn.setAttribute("aria-expanded", String(isOpen));
 }
 
