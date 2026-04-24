@@ -636,6 +636,18 @@ p {
   font-size: 14px;
 }
 
+.renewal-meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+  margin-top: 6px;
+}
+
+.renewal-status-row {
+  align-items: center;
+  justify-content: space-between;
+}
+
 .badge {
   display: inline-block;
   font-size: 12px;
@@ -653,6 +665,10 @@ p {
 .badge.completed { background: #dcfce7; color: #166534; }
 .badge.quoted,
 .badge.progress { background: #dbeafe; color: #1d4ed8; }
+
+.issue-pill {
+  margin-left: auto;
+}
 
 .detail-section {
   margin-bottom: 18px;
