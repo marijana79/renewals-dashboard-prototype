@@ -525,6 +525,15 @@ p {
   display: inline-block;
 }
 
+
+.queue-filter-panel[hidden] {
+  display: none;
+}
+
+.queue-filter-panel.is-open {
+  display: grid;
+}
+
 .queue-filter-panel {
   position: absolute;
   top: calc(100% + 10px);
