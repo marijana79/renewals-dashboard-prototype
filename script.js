@@ -214,7 +214,7 @@ const renewals = [
     policy: "Contractor Tools Combined",
     lob: "Specialty",
     businessLine: "Tools",
-    brand: "ToolSure",
+    brand: "Tools",
     dateFrom: "01 Oct 2026",
     dateTo: "30 Sep 2027",
     renewalDate: "2027-09-30",
@@ -715,7 +715,7 @@ function renderRenewals() {
   const filtered = renewals.filter((item) => {
     const matchesStage = !renewalQueueFilters.stage || item.stage === renewalQueueFilters.stage;
     const matchesProgress = !renewalQueueFilters.progress || item.progress === renewalQueueFilters.progress;
-    const text = `${item.customer} ${item.policy} ${item.businessLine} ${item.brand} ${item.insurer} ${item.broker} ${item.owner} ${item.id} ${item.stage} ${item.progress}`.toLowerCase();
+    const text = `${item.businessLine} ${item.brand} ${item.insurer} ${item.stage} ${item.progress} ${item.status}`.toLowerCase();
     const matchesSearch = text.includes(currentSearch.toLowerCase());
     return matchesStage && matchesProgress && matchesSearch;
   });
@@ -726,22 +726,27 @@ function renderRenewals() {
     if (item.id === selectedRenewalId) div.classList.add("active");
 
     div.innerHTML = `
-      <div class="row-top">
-        <div>
-          <div class="row-title">${item.businessLine}</div>
-          <div class="row-subtitle">${item.brand} • ${item.customer} • ${item.id}</div>
+      <div class="row-top renewal-card-top">
+        <div class="renewal-core-grid">
+          <div class="renewal-core-cell">
+            <span class="renewal-label">Business line:</span>
+            <span class="renewal-business-line">${item.businessLine}</span>
+          </div>
+          <div class="renewal-core-cell">
+            <span class="renewal-label">Brand:</span>
+            <span class="renewal-brand">${item.brand}</span>
+          </div>
         </div>
         <span class="badge ${getBadgeClass(item.status)}">${item.status}</span>
       </div>
-      <div class="row-subtitle">Date range: ${item.dateFrom} - ${item.dateTo}</div>
-      <div class="renewal-meta-row">
-        <span class="row-subtitle"><strong>Insurer:</strong> ${item.insurer}</span>
-        <span class="row-subtitle"><strong>Total records:</strong> ${item.totalRecords}</span>
+      <div class="renewal-detail-grid">
+        <p class="renewal-detail-item"><span class="renewal-label">Date range:</span><span class="renewal-value">${item.dateFrom} - ${item.dateTo}</span></p>
+        <p class="renewal-detail-item"><span class="renewal-label">Stage:</span><span class="renewal-value">${item.stage}</span></p>
+        <p class="renewal-detail-item"><span class="renewal-label">Progress:</span><span class="renewal-value">${item.progress}</span></p>
+        <p class="renewal-detail-item"><span class="renewal-label">Insurer:</span><span class="renewal-value">${item.insurer}</span></p>
+        <p class="renewal-detail-item"><span class="renewal-label">Total records:</span><span class="renewal-value">${item.totalRecords}</span></p>
       </div>
-      <div class="renewal-meta-row renewal-status-row">
-        <span class="row-subtitle"><strong>Stage:</strong> ${item.stage} / ${item.progress}</span>
-        ${item.issueStatus ? `<span class="badge issue-pill ${getIssuePillClass(item.issueStatus)}">${item.issueStatus}</span>` : ""}
-      </div>
+      ${item.issueStatus ? `<div class="renewal-issue-wrap"><span class="badge issue-pill ${getIssuePillClass(item.issueStatus)}">${item.issueStatus}</span></div>` : ""}
     `;
 
     div.addEventListener("click", () => {
