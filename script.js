@@ -1,243 +1,289 @@
 const renewals = [
   {
-    id: "RN-10482",
-    customer: "Greenlight",
+    id: "RN-20601",
+    customer: "Greenlight Engineering",
     broker: "Aston Brokers",
-    policy: "Commercial Property",
-    lob: "Property",
-    brand: "Gadget",
-    renewalDate: "2026-03-28",
+    policy: "Open Market Motor Combined",
+    lob: "Motor",
+    businessLine: "Open Market Motor",
+    brand: "Tungsten",
+    dateFrom: "01 Jun 2026",
+    dateTo: "30 Jun 2026",
+    renewalDate: "2026-06-30",
+    insurer: "AXA",
+    totalRecords: 48,
+    issueStatus: "Referred",
     premium: "€148,200",
     status: "At risk",
     stage: "Invite",
-    progress: "Search Queued",
+    progress: "Search In Progress",
     owner: "Priya Shah",
     completion: 62,
     exceptionType: "Missing underwriting decision",
     lastUpdated: "2h ago",
-    notes: "Waiting for underwriter approval after exposure change on 2 locations.",
-    blockers: ["Referral still pending", "Exposure values updated but not reviewed", "Broker expects quote before Friday"],
-    actions: ["Chase underwriting decision", "Confirm revised TIV details", "Prepare fallback terms if referral slips"]
+    notes: "Motor renewal search is active while underwriting validates claims trend adjustments.",
+    blockers: ["Underwriter approval pending", "Broker asked for quote preview"],
+    actions: ["Chase underwriting decision", "Validate claims trend", "Share interim status with broker"]
   },
   {
-    id: "RN-10411",
-    customer: "Islands",
+    id: "RN-20602",
+    customer: "Atlas Student Trips",
     broker: "North Coast",
-    policy: "Fleet",
-    lob: "Motor",
-    brand: "Bicy",
-    renewalDate: "2026-03-24",
+    policy: "Travel Annual Multi-Trip",
+    lob: "Travel",
+    businessLine: "Travel",
+    brand: "Voyagr",
+    dateFrom: "15 May 2026",
+    dateTo: "14 May 2027",
+    renewalDate: "2027-05-14",
+    insurer: "Allianz",
+    totalRecords: 134,
+    issueStatus: null,
     premium: "€82,450",
-    status: "Needs review",
-    stage: "Invite",
-    progress: "Search In Progress",
-    owner: "Marta Klein",
-    completion: 74,
-    exceptionType: "Pricing deviation",
-    lastUpdated: "5h ago",
-    notes: "Premium decrease exceeds delegated authority threshold.",
-    blockers: ["Pricing justification not attached", "Approval route unclear for this segment"],
-    actions: ["Attach pricing rationale", "Route to delegated approver", "Notify broker of review status"]
-  },
-  {
-    id: "RN-10398",
-    customer: "Harbor Group",
-    broker: "Lumen Risk",
-    policy: "Liability",
-    lob: "Casualty",
-    brand: "Tungsten",
-    renewalDate: "2026-03-30",
-    premium: "€231,900",
     status: "Ready",
     stage: "Invite",
-    progress: "Invite In Progress",
-    owner: "Daniel Reed",
-    completion: 91,
-    exceptionType: "None",
-    lastUpdated: "1d ago",
-    notes: "Quote prepared and ready for release pending scheduler run.",
-    blockers: [],
-    actions: ["Release in next batch", "Export quote pack"]
-  },
-  {
-    id: "RN-10467",
-    customer: "Blue Pine",
-    broker: "Axis Advisory",
-    policy: "Cyber",
-    lob: "Specialty",
-    brand: "Gadget",
-    renewalDate: "2026-04-02",
-    premium: "€95,700",
-    status: "Blocked",
-    stage: "Invite",
     progress: "Invite Completed",
-    owner: "Elena Voss",
-    completion: 48,
-    exceptionType: "Missing claims data",
-    lastUpdated: "45m ago",
-    notes: "Claims feed did not arrive for last policy term.",
-    blockers: ["Claims integration timeout", "Cannot rate final terms without loss data", "Customer requested early visibility"],
-    actions: ["Retry claims sync", "Escalate to integration support", "Surface fallback manual upload option"]
+    owner: "Marta Klein",
+    completion: 96,
+    exceptionType: "None",
+    lastUpdated: "1h ago",
+    notes: "Invite completed and staged for the next outbound pack.",
+    blockers: [],
+    actions: ["Include in next invite batch", "Send confirmation to broker"]
   },
   {
-    id: "RN-10405",
-    customer: "Oak & Vale",
-    broker: "BridgePoint",
-    policy: "Employers Liability",
-    lob: "Casualty",
+    id: "RN-20603",
+    customer: "Nova Retail Tech",
+    broker: "Lumen Risk",
+    policy: "Consumer Electronics Protection",
+    lob: "Gadget",
+    businessLine: "Gadget",
+    brand: "Gadget",
+    dateFrom: "01 Jul 2026",
+    dateTo: "30 Jun 2027",
+    renewalDate: "2027-06-30",
+    insurer: "Zurich",
+    totalRecords: 96,
+    issueStatus: "Failed",
+    premium: "€231,900",
+    status: "Blocked",
+    stage: "Accept",
+    progress: "Accept In Progress",
+    owner: "Daniel Reed",
+    completion: 54,
+    exceptionType: "Downstream pricing write failure",
+    lastUpdated: "45m ago",
+    notes: "Accept process failed on a partial write and requires replay.",
+    blockers: ["Pricing response checksum mismatch"],
+    actions: ["Retry accept pipeline", "Validate transformed payload", "Notify operations lead"]
+  },
+  {
+    id: "RN-20604",
+    customer: "CityCycle Distribution",
+    broker: "Axis Advisory",
+    policy: "Commercial Bicycle Portfolio",
+    lob: "Bicycle",
+    businessLine: "Bicycle",
     brand: "Bicy",
-    renewalDate: "2026-03-26",
+    dateFrom: "01 Aug 2026",
+    dateTo: "31 Jul 2027",
+    renewalDate: "2027-07-31",
+    insurer: "QBE",
+    totalRecords: 72,
+    issueStatus: "Re-referred",
+    premium: "€95,700",
+    status: "Needs review",
+    stage: "Invite",
+    progress: "Invite In Progress",
+    owner: "Elena Voss",
+    completion: 58,
+    exceptionType: "Repeated referral after lock contention",
+    lastUpdated: "30m ago",
+    notes: "Invite run reopened after repeat validation exceptions on cycle inventory.",
+    blockers: ["Record set relocked during replay"],
+    actions: ["Coordinate lock release window", "Replay invite segment"]
+  },
+  {
+    id: "RN-20605",
+    customer: "Pioneer Logistics",
+    broker: "BridgePoint",
+    policy: "Fleet Liability and Damage",
+    lob: "Motor",
+    businessLine: "Fleet",
+    brand: "RoadSure",
+    dateFrom: "10 Jun 2026",
+    dateTo: "09 Jun 2027",
+    renewalDate: "2027-06-09",
+    insurer: "AXA",
+    totalRecords: 120,
+    issueStatus: "Blocked",
     premium: "€44,120",
-    status: "Quoted",
+    status: "Blocked",
     stage: "Accept",
     progress: "Search Queued",
     owner: "Tom Meyer",
-    completion: 100,
-    exceptionType: "None",
+    completion: 36,
+    exceptionType: "Pending telematics ingestion",
     lastUpdated: "3h ago",
-    notes: "Quote issued and awaiting broker response.",
-    blockers: [],
-    actions: ["Monitor response", "Send reminder in 2 days"]
+    notes: "Accept search queued until fleet telematics extract is complete.",
+    blockers: ["Telemetry feed delayed"],
+    actions: ["Escalate data ingestion", "Requeue search when feed lands"]
   },
   {
-    id: "RN-10490",
-    customer: "Northline Foods",
+    id: "RN-20606",
+    customer: "Blue Horizon Charters",
     broker: "Westford Risk",
-    policy: "Retail Package",
-    lob: "Property",
-    brand: "Gadget",
-    renewalDate: "2026-04-06",
+    policy: "Yacht Hull and Liability",
+    lob: "Marine",
+    businessLine: "Yacht",
+    brand: "MarinaPrime",
+    dateFrom: "01 Sep 2026",
+    dateTo: "31 Aug 2027",
+    renewalDate: "2027-08-31",
+    insurer: "Chubb",
+    totalRecords: 28,
+    issueStatus: null,
     premium: "€67,880",
-    status: "Needs review",
+    status: "In progress",
     stage: "Accept",
     progress: "Search In Progress",
     owner: "Leo Grant",
-    completion: 57,
-    exceptionType: "Data mismatch",
-    lastUpdated: "20m ago",
-    notes: "Searching endorsements to reconcile accept payload.",
-    blockers: ["Endorsement sequence mismatch"],
-    actions: ["Validate sequence IDs", "Retry accept sync"]
-  },
-  {
-    id: "RN-10491",
-    customer: "Cedarline",
-    broker: "Apex Agency",
-    policy: "Marine Cargo",
-    lob: "Specialty",
-    brand: "Tungsten",
-    renewalDate: "2026-04-10",
-    premium: "€119,430",
-    status: "At risk",
-    stage: "Accept",
-    progress: "Accept In Progress",
-    owner: "Nina Park",
-    completion: 69,
-    exceptionType: "Pending acceptance confirmation",
-    lastUpdated: "1h ago",
-    notes: "Accept process is running with one upstream timeout.",
-    blockers: ["Awaiting payment status"],
-    actions: ["Check downstream retries", "Confirm settlement status"]
-  },
-  {
-    id: "RN-10492",
-    customer: "Pioneer Logistics",
-    broker: "Lumen Risk",
-    policy: "Fleet Plus",
-    lob: "Motor",
-    brand: "Bicy",
-    renewalDate: "2026-04-11",
-    premium: "€88,210",
-    status: "Ready",
-    stage: "Accept",
-    progress: "Accept Completed",
-    owner: "Marta Klein",
-    completion: 97,
+    completion: 67,
     exceptionType: "None",
-    lastUpdated: "50m ago",
-    notes: "Accept completed and awaiting batch confirmation.",
+    lastUpdated: "20m ago",
+    notes: "Search in progress for updated marina exposure and navigation limits.",
     blockers: [],
-    actions: ["Include in next run", "Send update to broker"]
+    actions: ["Complete search", "Prepare accept recommendation"]
   },
   {
-    id: "RN-10493",
-    customer: "Vertex Labs",
+    id: "RN-20607",
+    customer: "Oak & Vale Estates",
+    broker: "Apex Agency",
+    policy: "Household Portfolio Plus",
+    lob: "Property",
+    businessLine: "Open Market Household",
+    brand: "Homestead",
+    dateFrom: "01 Jun 2026",
+    dateTo: "31 May 2027",
+    renewalDate: "2027-05-31",
+    insurer: "Aviva",
+    totalRecords: 84,
+    issueStatus: "Record locked",
+    premium: "€119,430",
+    status: "Needs review",
+    stage: "Lapse",
+    progress: "Search Queued",
+    owner: "Nina Park",
+    completion: 33,
+    exceptionType: "Concurrent endorsement lock",
+    lastUpdated: "1h ago",
+    notes: "Lapse search queued but records remain locked by endorsement updates.",
+    blockers: ["Lock owner is endorsements service"],
+    actions: ["Clear lock", "Retry lapse search"]
+  },
+  {
+    id: "RN-20608",
+    customer: "ThrottleWorks",
+    broker: "Lumen Risk",
+    policy: "Open Market Motorcycle Trade",
+    lob: "Motor",
+    businessLine: "Open Market Motorcycle",
+    brand: "TorqueCover",
+    dateFrom: "20 May 2026",
+    dateTo: "19 May 2027",
+    renewalDate: "2027-05-19",
+    insurer: "RSA",
+    totalRecords: 52,
+    issueStatus: "Referred",
+    premium: "€88,210",
+    status: "At risk",
+    stage: "Lapse",
+    progress: "Search In Progress",
+    owner: "Marta Klein",
+    completion: 47,
+    exceptionType: "Manual review requested",
+    lastUpdated: "50m ago",
+    notes: "Search in progress while referral reviews modified rider limits.",
+    blockers: ["Awaiting referral outcome"],
+    actions: ["Follow referral SLA", "Prepare lapse fallback"]
+  },
+  {
+    id: "RN-20609",
+    customer: "ForgeWorks Hire",
     broker: "BridgePoint",
-    policy: "Technology E&O",
-    lob: "Casualty",
-    brand: "Gadget",
-    renewalDate: "2026-04-14",
+    policy: "Contractor Tools Combined",
+    lob: "Specialty",
+    businessLine: "Tools",
+    brand: "ToolSure",
+    dateFrom: "01 Oct 2026",
+    dateTo: "30 Sep 2027",
+    renewalDate: "2027-09-30",
+    insurer: "HDI",
+    totalRecords: 64,
+    issueStatus: "Failed",
     premium: "€76,540",
     status: "Blocked",
     stage: "Lapse",
-    progress: "Search Queued",
-    owner: "Priya Shah",
-    completion: 33,
-    exceptionType: "Missing lapse mandate",
-    lastUpdated: "15m ago",
-    notes: "Lapse request queued while mandate evidence is collected.",
-    blockers: ["No signed lapse mandate"],
-    actions: ["Request mandate", "Keep account manager informed"]
-  },
-  {
-    id: "RN-10494",
-    customer: "Alta Manufacturing",
-    broker: "North Coast",
-    policy: "Liability Core",
-    lob: "Casualty",
-    brand: "Tungsten",
-    renewalDate: "2026-04-15",
-    premium: "€132,640",
-    status: "Needs review",
-    stage: "Lapse",
-    progress: "Search In Progress",
-    owner: "Daniel Reed",
-    completion: 43,
-    exceptionType: "Pending finance validation",
-    lastUpdated: "30m ago",
-    notes: "Validating overdue receivables before lapse execution.",
-    blockers: ["Finance validation in progress"],
-    actions: ["Confirm arrears", "Proceed with lapse path"]
-  },
-  {
-    id: "RN-10495",
-    customer: "Summit Retail",
-    broker: "Axis Advisory",
-    policy: "Store Package",
-    lob: "Property",
-    brand: "Bicy",
-    renewalDate: "2026-04-16",
-    premium: "€58,300",
-    status: "At risk",
-    stage: "Lapse",
     progress: "Lapse In Progress",
-    owner: "Elena Voss",
-    completion: 55,
-    exceptionType: "Customer dispute",
-    lastUpdated: "2h ago",
-    notes: "Lapse initiated but customer raised dispute for final invoice.",
-    blockers: ["Awaiting dispute outcome"],
-    actions: ["Coordinate with finance", "Track dispute SLA"]
+    owner: "Priya Shah",
+    completion: 59,
+    exceptionType: "Lapse posting failure",
+    lastUpdated: "15m ago",
+    notes: "Lapse in progress stopped after posting response returned technical failure.",
+    blockers: ["Posting endpoint error"],
+    actions: ["Replay lapse posting", "Capture failure evidence for platform team"]
   },
   {
-    id: "RN-10496",
-    customer: "Evergreen Hotels",
-    broker: "Aston Brokers",
-    policy: "Hospitality Liability",
-    lob: "Casualty",
-    brand: "Gadget",
-    renewalDate: "2026-04-17",
-    premium: "€172,110",
+    id: "RN-20610",
+    customer: "Evergreen Stays",
+    broker: "North Coast",
+    policy: "Hotel Property and Liability",
+    lob: "Hospitality",
+    businessLine: "Hotel",
+    brand: "StayGuard",
+    dateFrom: "01 Nov 2026",
+    dateTo: "31 Oct 2027",
+    renewalDate: "2027-10-31",
+    insurer: "AXA",
+    totalRecords: 112,
+    issueStatus: null,
+    premium: "€132,640",
     status: "Ready",
     stage: "Lapse",
     progress: "Lapse Completed",
-    owner: "Tom Meyer",
+    owner: "Daniel Reed",
     completion: 100,
     exceptionType: "None",
-    lastUpdated: "4h ago",
-    notes: "Lapse completed and downstream records confirmed.",
+    lastUpdated: "30m ago",
+    notes: "Lapse completed with downstream confirmations received.",
     blockers: [],
-    actions: ["Archive case", "Notify servicing team"]
+    actions: ["Archive renewal case", "Notify servicing team"]
+  },
+  {
+    id: "RN-20611",
+    customer: "Cedar Block Holdings",
+    broker: "Axis Advisory",
+    policy: "Property Owners Composite",
+    lob: "Property",
+    businessLine: "Property Owners",
+    brand: "Landmark",
+    dateFrom: "05 Jun 2026",
+    dateTo: "04 Jun 2027",
+    renewalDate: "2027-06-04",
+    insurer: "Zurich",
+    totalRecords: 140,
+    issueStatus: "Blocked",
+    premium: "€172,110",
+    status: "Needs review",
+    stage: "Invite",
+    progress: "Search Queued",
+    owner: "Tom Meyer",
+    completion: 29,
+    exceptionType: "Valuation attachment missing",
+    lastUpdated: "4h ago",
+    notes: "Invite search queued pending updated survey valuation files.",
+    blockers: ["Missing valuation schedule"],
+    actions: ["Request valuation pack", "Resume queue once uploaded"]
   }
 ];
 
@@ -578,6 +624,16 @@ function getBadgeClass(status) {
   return "";
 }
 
+function getIssuePillClass(issueStatus) {
+  if (!issueStatus) return "";
+  if (issueStatus === "Failed") return "failed";
+  if (issueStatus === "Blocked") return "blocked";
+  if (issueStatus === "Referred") return "review";
+  if (issueStatus === "Re-referred") return "atrisk";
+  if (issueStatus === "Record locked") return "quoted";
+  return "warning";
+}
+
 function monthLabel(dateString) {
   const date = new Date(dateString);
   return date.toLocaleDateString("en-GB", { month: "short", year: "2-digit" });
@@ -659,7 +715,7 @@ function renderRenewals() {
   const filtered = renewals.filter((item) => {
     const matchesStage = !renewalQueueFilters.stage || item.stage === renewalQueueFilters.stage;
     const matchesProgress = !renewalQueueFilters.progress || item.progress === renewalQueueFilters.progress;
-    const text = `${item.customer} ${item.policy} ${item.broker} ${item.owner} ${item.id} ${item.stage} ${item.progress}`.toLowerCase();
+    const text = `${item.customer} ${item.policy} ${item.businessLine} ${item.brand} ${item.insurer} ${item.broker} ${item.owner} ${item.id} ${item.stage} ${item.progress}`.toLowerCase();
     const matchesSearch = text.includes(currentSearch.toLowerCase());
     return matchesStage && matchesProgress && matchesSearch;
   });
@@ -672,14 +728,20 @@ function renderRenewals() {
     div.innerHTML = `
       <div class="row-top">
         <div>
-          <div class="row-title">${item.customer}</div>
-          <div class="row-subtitle">${item.policy} • ${item.broker} • ${item.id}</div>
+          <div class="row-title">${item.businessLine}</div>
+          <div class="row-subtitle">${item.brand} • ${item.customer} • ${item.id}</div>
         </div>
         <span class="badge ${getBadgeClass(item.status)}">${item.status}</span>
       </div>
-      <div class="row-subtitle">Renewal date: ${item.renewalDate}</div>
-      <div class="row-subtitle">Owner: ${item.owner} | Premium: ${item.premium} | Completion: ${item.completion}%</div>
-      <div class="row-subtitle">Stage: ${item.stage} | Progress: ${item.progress}</div>
+      <div class="row-subtitle">Date range: ${item.dateFrom} - ${item.dateTo}</div>
+      <div class="renewal-meta-row">
+        <span class="row-subtitle"><strong>Insurer:</strong> ${item.insurer}</span>
+        <span class="row-subtitle"><strong>Total records:</strong> ${item.totalRecords}</span>
+      </div>
+      <div class="renewal-meta-row renewal-status-row">
+        <span class="row-subtitle"><strong>Stage:</strong> ${item.stage} / ${item.progress}</span>
+        ${item.issueStatus ? `<span class="badge issue-pill ${getIssuePillClass(item.issueStatus)}">${item.issueStatus}</span>` : ""}
+      </div>
     `;
 
     div.addEventListener("click", () => {
@@ -700,8 +762,8 @@ function renderDetail(item) {
   if (!detailContent) return;
   detailContent.innerHTML = `
     <div class="detail-section">
-      <h2>${item.customer}</h2>
-      <p class="muted">${item.policy} • ${item.id} • ${item.lob}</p>
+      <h2>${item.businessLine}</h2>
+      <p class="muted">${item.brand} • ${item.customer} • ${item.id}</p>
     </div>
     <div class="detail-section">
       <h4>Status</h4>
@@ -709,11 +771,14 @@ function renderDetail(item) {
     </div>
     <div class="detail-section">
       <h4>Renewal summary</h4>
+      <p><strong>Date range:</strong> ${item.dateFrom} - ${item.dateTo}</p>
+      <p><strong>Insurer:</strong> ${item.insurer}</p>
+      <p><strong>Total records:</strong> ${item.totalRecords}</p>
       <p><strong>Owner:</strong> ${item.owner}</p>
-      <p><strong>Renewal date:</strong> ${item.renewalDate}</p>
       <p><strong>Premium:</strong> ${item.premium}</p>
       <p><strong>Stage:</strong> ${item.stage}</p>
       <p><strong>Progress:</strong> ${item.progress}</p>
+      <p><strong>Issue status:</strong> ${item.issueStatus || "None"}</p>
       <p><strong>Last updated:</strong> ${item.lastUpdated}</p>
       <p><strong>Exception type:</strong> ${item.exceptionType}</p>
     </div>
