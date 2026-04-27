@@ -561,6 +561,10 @@ const queueFilterApplyBtn = document.getElementById("queueFilterApplyBtn");
 const queueFilterClearBtn = document.getElementById("queueFilterClearBtn");
 const queueAppliedFilters = document.getElementById("queueAppliedFilters");
 const queueFilterActiveDot = document.getElementById("queueFilterActiveDot");
+const morningBriefingSummary = document.getElementById("morningBriefingSummary");
+const startMyDayBtn = document.getElementById("startMyDayBtn");
+const resetDayViewBtn = document.getElementById("resetDayViewBtn");
+const startDayStatus = document.getElementById("startDayStatus");
 
 const reportsKpiGrid = document.getElementById("reportsKpiGrid");
 const recentBatchRunsBody = document.getElementById("recentBatchRunsBody");
@@ -598,7 +602,7 @@ const timeContextLabelMap = {
 
 const assignedOwners = ["Marijana Andrevska", "Laurence Abbott", "Katerina Danilovska", "Andrej Cilkov", "Mark Feltwell"];
 const overviewFilters = { time: "12 months", renewalType: "All", assignedTo: "Marijana Andrevska" };
-
+let isPriorityDayMode = false;
 
 const renewalsOverTimeMonthlyData = [
   { label: "Jan", value: 186 },
@@ -632,6 +636,27 @@ function getIssuePillClass(issueStatus) {
   if (issueStatus === "Re-referred") return "atrisk";
   if (issueStatus === "Record locked") return "quoted";
   return "warning";
+}
+
+function getRenewalPriorityScore(item) {
+  let score = 0;
+  const issue = (item.issueStatus || "").toLowerCase();
+  const status = (item.status || "").toLowerCase();
+
+  if (issue.includes("re-referred")) score += 6;
+  if (issue.includes("record locked")) score += 5;
+  if (issue.includes("failed")) score += 5;
+  if (issue.includes("blocked")) score += 4;
+  if (issue.includes("referred")) score += 3;
+  if (status.includes("blocked")) score += 3;
+  if (status.includes("at risk")) score += 2;
+  if (status.includes("needs review")) score += 2;
+
+  return score;
+}
+
+function isPriorityRenewal(item) {
+  return getRenewalPriorityScore(item) >= 4;
 }
 
 function monthLabel(dateString) {
@@ -708,11 +733,26 @@ function renderDueForRenewalsChart() {
   renderBarChart(dueForRenewalsChart, buckets, "bar-secondary");
 }
 
+function renderMorningBriefing() {
+  if (!morningBriefingSummary) return;
+  const overnightCompleted = 3;
+  const needsAttention = renewals.filter((item) => isPriorityRenewal(item)).length;
+  const rereferrals = renewals.filter((item) => item.issueStatus === "Re-referred").length;
+  const blockedAccept = renewals.filter((item) => item.stage === "Accept" && (item.status === "Blocked" || item.issueStatus === "Blocked" || item.issueStatus === "Failed")).length;
+
+  morningBriefingSummary.innerHTML = `
+    <li>${overnightCompleted} batches completed overnight.</li>
+    <li>${needsAttention} renewals need attention.</li>
+    <li>${rereferrals} re-referrals are higher than usual.</li>
+    <li>${blockedAccept} accept cases are blocked.</li>
+  `;
+}
+
 function renderRenewals() {
   if (!renewalList) return;
   renewalList.innerHTML = "";
 
-  const filtered = renewals.filter((item) => {
+  let filtered = renewals.filter((item) => {
     const matchesStage = !renewalQueueFilters.stage || item.stage === renewalQueueFilters.stage;
     const matchesProgress = !renewalQueueFilters.progress || item.progress === renewalQueueFilters.progress;
     const text = `${item.businessLine} ${item.brand} ${item.insurer} ${item.stage} ${item.progress} ${item.status}`.toLowerCase();
@@ -720,10 +760,15 @@ function renderRenewals() {
     return matchesStage && matchesProgress && matchesSearch;
   });
 
+  if (isPriorityDayMode) {
+    filtered = [...filtered].sort((a, b) => getRenewalPriorityScore(b) - getRenewalPriorityScore(a) || a.id.localeCompare(b.id));
+  }
+
   filtered.forEach((item) => {
     const div = document.createElement("div");
     div.className = "renewal-item";
     if (item.id === selectedRenewalId) div.classList.add("active");
+    if (isPriorityDayMode && isPriorityRenewal(item)) div.classList.add("priority-focus");
 
     div.innerHTML = `
       <div class="row-top renewal-card-top">
@@ -1273,6 +1318,11 @@ function initializeRenewalQueueFilters() {
   renderAppliedQueueFilters();
 }
 
+function setStartDayStatus(message) {
+  if (!startDayStatus) return;
+  startDayStatus.textContent = message;
+}
+
 document.querySelectorAll(".nav-item").forEach((button) => {
   button.addEventListener("click", () => {
     setRoute(button.dataset.route);
@@ -1345,6 +1395,21 @@ queueAppliedFilters?.addEventListener("click", (event) => {
 
   renderAppliedQueueFilters();
   renderRenewals();
+});
+
+startMyDayBtn?.addEventListener("click", () => {
+  isPriorityDayMode = true;
+  setRoute("overview");
+  renderRenewals();
+  setStartDayStatus("Showing highest-priority renewals based on urgency and repeated handling.");
+  if (resetDayViewBtn) resetDayViewBtn.hidden = false;
+});
+
+resetDayViewBtn?.addEventListener("click", () => {
+  isPriorityDayMode = false;
+  renderRenewals();
+  setStartDayStatus("Queue returned to default ordering.");
+  resetDayViewBtn.hidden = true;
 });
 
 document.querySelectorAll(".filter-kpi").forEach((card) => {
@@ -1659,6 +1724,7 @@ document.addEventListener("keydown", (event) => {
 
 window.addEventListener("hashchange", syncRouteFromHash);
 
+renderMorningBriefing();
 renderRenewals();
 renderBatches();
 renderReferrals();
