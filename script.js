@@ -523,6 +523,7 @@ let selectedRenewalId = null;
 
 const routeToView = {
   overview: "overviewView",
+  startMyDay: "startMyDayView",
   batchHealth: "batchHealthView",
   reports: "reportsView",
   referrals: "referralsView"
@@ -565,6 +566,38 @@ const morningBriefingSummary = document.getElementById("morningBriefingSummary")
 const startMyDayBtn = document.getElementById("startMyDayBtn");
 const resetDayViewBtn = document.getElementById("resetDayViewBtn");
 const startDayStatus = document.getElementById("startDayStatus");
+const backToOverviewBtn = document.getElementById("backToOverviewBtn");
+const refreshPrioritiesBtn = document.getElementById("refreshPrioritiesBtn");
+const startDaySummaryLines = document.getElementById("startDaySummaryLines");
+const healthyRenewalsSummary = document.getElementById("healthyRenewalsSummary");
+
+const startDayPriorities = [
+  {
+    renewalsNeedAttention: 18,
+    reReferrals: 5,
+    blockedAccept: 2,
+    batchesNeedReview: 1,
+    healthy: 42
+  },
+  {
+    renewalsNeedAttention: 17,
+    reReferrals: 4,
+    blockedAccept: 3,
+    batchesNeedReview: 1,
+    healthy: 43
+  },
+  {
+    renewalsNeedAttention: 19,
+    reReferrals: 6,
+    blockedAccept: 2,
+    batchesNeedReview: 2,
+    healthy: 40
+  }
+];
+
+let activeStartDaySnapshot = 0;
+let openStartDayMenuId = null;
+
 
 const reportsKpiGrid = document.getElementById("reportsKpiGrid");
 const recentBatchRunsBody = document.getElementById("recentBatchRunsBody");
@@ -1322,6 +1355,38 @@ function setStartDayStatus(message) {
   if (!startDayStatus) return;
   startDayStatus.textContent = message;
 }
+function renderStartDaySummary(snapshotIndex = activeStartDaySnapshot) {
+  if (!startDaySummaryLines || !healthyRenewalsSummary) return;
+  const snapshot = startDayPriorities[snapshotIndex] || startDayPriorities[0];
+  startDaySummaryLines.innerHTML = `
+    <li>${snapshot.renewalsNeedAttention} renewals need attention today</li>
+    <li>${snapshot.reReferrals} re-referrals are the highest priority</li>
+    <li>${snapshot.blockedAccept} accept cases are blocked</li>
+    <li>${snapshot.batchesNeedReview} batch needs review due to elevated exceptions</li>
+  `;
+  healthyRenewalsSummary.textContent = `${snapshot.healthy} renewals are currently progressing as expected across Invite, Accept, and Lapse stages.`;
+}
+
+function handleStartDayAction(action) {
+  if (!action) return;
+  const actionMap = {
+    "open-referral-queue": () => setRoute("referrals"),
+    "open-related-referrals": () => setRoute("referrals"),
+    "back-to-overview": () => setRoute("overview"),
+    "open-referral": () => setRoute("referrals"),
+    "view-healthy-renewals": () => console.log("Mock action: View all healthy renewals"),
+    "view-batch": () => console.log("Mock action: View batch"),
+    "open-policy": () => console.log("Mock action: Open policy"),
+    "resolve-issue": () => console.log("Mock action: Resolve issue"),
+    "retry": () => console.log("Mock action: Retry workflow"),
+    "assign-owner": () => console.log("Mock action: Assign owner"),
+    "open-renewal": () => console.log("Mock action: Open renewal")
+  };
+
+  const handler = actionMap[action] || (() => console.log(`Mock action: ${action}`));
+  handler();
+}
+
 
 document.querySelectorAll(".nav-item").forEach((button) => {
   button.addEventListener("click", () => {
@@ -1399,9 +1464,8 @@ queueAppliedFilters?.addEventListener("click", (event) => {
 
 startMyDayBtn?.addEventListener("click", () => {
   isPriorityDayMode = true;
-  setRoute("overview");
-  renderRenewals();
-  setStartDayStatus("Showing highest-priority renewals based on urgency and repeated handling.");
+  setRoute("startMyDay");
+  setStartDayStatus("Start my day workspace is ready with prioritised actions.");
   if (resetDayViewBtn) resetDayViewBtn.hidden = false;
 });
 
@@ -1410,6 +1474,16 @@ resetDayViewBtn?.addEventListener("click", () => {
   renderRenewals();
   setStartDayStatus("Queue returned to default ordering.");
   resetDayViewBtn.hidden = true;
+});
+
+backToOverviewBtn?.addEventListener("click", () => {
+  setRoute("overview");
+});
+
+refreshPrioritiesBtn?.addEventListener("click", () => {
+  activeStartDaySnapshot = (activeStartDaySnapshot + 1) % startDayPriorities.length;
+  renderStartDaySummary();
+  console.log("Priorities refreshed using mock overnight signal set.");
 });
 
 document.querySelectorAll(".filter-kpi").forEach((card) => {
@@ -1554,6 +1628,35 @@ document.addEventListener("click", (event) => {
   const clickedInsideQueueFilters = target.closest("#renewalQueueFilterWrap");
   if (!clickedInsideQueueFilters && renewalQueueFilterPanel && !renewalQueueFilterPanel.hidden) {
     setQueueFilterPanelOpen(false);
+  }
+
+  const startDayMenuTrigger = target.closest("[data-startday-menu-trigger]");
+  if (startDayMenuTrigger instanceof HTMLElement) {
+    const menuId = startDayMenuTrigger.dataset.startdayMenuTrigger || null;
+    openStartDayMenuId = openStartDayMenuId === menuId ? null : menuId;
+    document.querySelectorAll("[data-startday-menu]").forEach((menu) => {
+      menu.classList.toggle("open", menu.dataset.startdayMenu === openStartDayMenuId);
+    });
+    document.querySelectorAll("[data-startday-menu-trigger]").forEach((trigger) => {
+      trigger.setAttribute("aria-expanded", String(trigger.dataset.startdayMenuTrigger === openStartDayMenuId));
+    });
+    return;
+  }
+
+  const startDayActionBtn = target.closest("[data-startday-action]");
+  if (startDayActionBtn instanceof HTMLElement) {
+    handleStartDayAction(startDayActionBtn.dataset.startdayAction || "");
+    openStartDayMenuId = null;
+    document.querySelectorAll("[data-startday-menu]").forEach((menu) => menu.classList.remove("open"));
+    document.querySelectorAll("[data-startday-menu-trigger]").forEach((trigger) => trigger.setAttribute("aria-expanded", "false"));
+    return;
+  }
+
+  const clickedInsideStartDayMenu = target.closest("[data-startday-menu-container]");
+  if (!clickedInsideStartDayMenu && openStartDayMenuId) {
+    openStartDayMenuId = null;
+    document.querySelectorAll("[data-startday-menu]").forEach((menu) => menu.classList.remove("open"));
+    document.querySelectorAll("[data-startday-menu-trigger]").forEach((trigger) => trigger.setAttribute("aria-expanded", "false"));
   }
 
   const clickedInsideReferralMenu = target.closest("[data-ref-menu-container]");
@@ -1725,6 +1828,7 @@ document.addEventListener("keydown", (event) => {
 window.addEventListener("hashchange", syncRouteFromHash);
 
 renderMorningBriefing();
+renderStartDaySummary();
 renderRenewals();
 renderBatches();
 renderReferrals();
