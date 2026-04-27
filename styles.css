@@ -160,6 +160,89 @@ p {
   align-items: flex-end;
 }
 
+.morning-briefing {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  align-items: flex-start;
+  border: 1px solid #bfdbfe;
+  background: linear-gradient(115deg, #f8fbff 0%, #ffffff 50%, #f1f7ff 100%);
+}
+
+.morning-briefing-main {
+  min-width: 0;
+}
+
+.morning-briefing-kicker {
+  margin: 0 0 8px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #1d4ed8;
+}
+
+.morning-briefing-message {
+  margin: 0 0 12px;
+  font-size: 24px;
+  line-height: 1.25;
+  color: #0f172a;
+}
+
+.morning-briefing-summary {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 6px;
+}
+
+.morning-briefing-summary li {
+  font-size: 14px;
+  color: #334155;
+  padding-left: 14px;
+  position: relative;
+}
+
+.morning-briefing-summary li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 8px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #2563eb;
+}
+
+.morning-briefing-actions {
+  min-width: 240px;
+  display: grid;
+  gap: 8px;
+  justify-items: end;
+}
+
+.start-day-btn {
+  background: #0f40c5;
+}
+
+.start-day-btn:hover {
+  background: #305dd1;
+}
+
+.briefing-reset-btn {
+  font-size: 12px;
+}
+
+.morning-briefing-status {
+  margin: 0;
+  min-height: 18px;
+  text-align: right;
+  font-size: 12px;
+  color: #1d4ed8;
+  font-weight: 600;
+}
+
 .overview-filter-field,
 .report-filter-field {
   min-width: 190px;
@@ -615,6 +698,12 @@ p {
 .renewal-item.active {
   border-color: #111827;
   background: #f9fafb;
+}
+
+.renewal-item.priority-focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.12);
+  background: linear-gradient(180deg, #f8fbff 0%, #ffffff 100%);
 }
 
 .row-top {
@@ -1235,6 +1324,21 @@ body.modal-open {
   .renewal-core-grid {
     grid-template-columns: 1fr;
     gap: 10px;
+  }
+}
+
+@media (max-width: 900px) {
+  .morning-briefing {
+    flex-direction: column;
+  }
+
+  .morning-briefing-actions {
+    width: 100%;
+    justify-items: start;
+  }
+
+  .morning-briefing-status {
+    text-align: left;
   }
 }
 
