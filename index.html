@@ -129,7 +129,7 @@
             <span>Queued for next run</span>
           </div>
         </div>
-        
+
         <div class="chart-grid">
           <section class="panel chart-panel">
             <div class="panel-header">
@@ -193,6 +193,244 @@
             </div>
           </section>
         </div>
+      </section>
+
+
+      <section id="startMyDayView" class="view start-day-view">
+        <section class="panel start-day-header-panel">
+          <div>
+            <h2 class="start-day-page-title">Start my day</h2>
+            <p class="subtext">A prioritised view of what needs attention first, so you can focus on the renewals that matter most today.</p>
+          </div>
+          <div class="start-day-header-actions">
+            <button id="backToOverviewBtn" class="secondary-btn" type="button">Back to Overview</button>
+            <button id="refreshPrioritiesBtn" class="primary-btn" type="button">Refresh priorities</button>
+          </div>
+        </section>
+
+        <section class="panel start-day-summary-panel">
+          <h3>Your priorities for today</h3>
+          <p class="start-day-intro-copy">We reviewed overnight activity and highlighted the renewals most likely to need attention first.</p>
+          <ul id="startDaySummaryLines" class="start-day-summary-list">
+            <li>18 renewals need attention today</li>
+            <li>5 re-referrals are the highest priority</li>
+            <li>2 accept cases are blocked</li>
+            <li>1 batch needs review due to elevated exceptions</li>
+          </ul>
+          <p class="start-day-reassurance">42 renewals are progressing normally and can be deprioritised for now</p>
+        </section>
+
+        <section class="panel start-day-recommendation-panel">
+          <div class="panel-header actionable-header">
+            <h3>Recommended first step</h3>
+            <div class="row-options" data-startday-menu-container="recommended">
+              <button class="options-trigger" data-startday-menu-trigger="recommended" type="button" aria-expanded="false" aria-haspopup="true" aria-label="Open recommended actions">⋯</button>
+              <div class="row-options-menu" data-startday-menu="recommended" role="menu">
+                <button type="button" role="menuitem" data-startday-action="open-referral-queue">Open referral queue</button>
+                <button type="button" role="menuitem" data-startday-action="view-batch">View batch</button>
+              </div>
+            </div>
+          </div>
+          <h4 class="start-day-recommendation-title">Review 5 re-referrals from Batch RN-2041</h4>
+          <p class="start-day-recommendation-copy">These cases returned after prior intervention and are the strongest signal of repeated manual effort this morning.</p>
+          <dl class="start-day-meta-grid">
+            <div><dt>Batch</dt><dd>RN-2041</dd></div>
+            <div><dt>Renewal type</dt><dd>Accept</dd></div>
+            <div><dt>Oldest due item</dt><dd>Today</dd></div>
+            <div><dt>Assigned to</dt><dd>Marijana Andrevska</dd></div>
+            <div><dt>Exception trend</dt><dd>Higher than usual</dd></div>
+          </dl>
+        </section>
+
+        <section class="panel">
+          <div class="panel-header">
+            <div>
+              <h3>Act now</h3>
+              <p class="subtext">These renewals are highest priority because they are blocked, repeated, or likely to affect today’s work.</p>
+            </div>
+          </div>
+          <div class="start-day-item-list">
+            <article class="start-day-item urgent">
+              <div class="start-day-item-header">
+                <div>
+                  <h4>Re-referral after prior intervention</h4>
+                  <p>Returned to referral after amendment removed previous override</p>
+                </div>
+                <span class="priority-reason-pill">Repeated manual handling</span>
+              </div>
+              <dl class="start-day-item-meta">
+                <div><dt>Renewal type</dt><dd>Accept</dd></div>
+                <div><dt>Business line</dt><dd>Open Market Motor</dd></div>
+                <div><dt>Insurer</dt><dd>AXA</dd></div>
+                <div><dt>Due</dt><dd>Today</dd></div>
+                <div><dt>Assigned to</dt><dd>Marijana Andrevska</dd></div>
+              </dl>
+              <div class="row-options" data-startday-menu-container="act-1">
+                <button class="options-trigger" data-startday-menu-trigger="act-1" type="button" aria-expanded="false">⋯</button>
+                <div class="row-options-menu" data-startday-menu="act-1" role="menu">
+                  <button type="button" role="menuitem" data-startday-action="open-referral">Open referral</button>
+                  <button type="button" role="menuitem" data-startday-action="open-policy">Open policy</button>
+                </div>
+              </div>
+            </article>
+
+            <article class="start-day-item urgent">
+              <div class="start-day-item-header">
+                <div>
+                  <h4>Blocked accept</h4>
+                  <p>Accept cannot complete because required data is missing</p>
+                </div>
+                <span class="priority-reason-pill">Blocked and due today</span>
+              </div>
+              <dl class="start-day-item-meta">
+                <div><dt>Renewal type</dt><dd>Accept</dd></div>
+                <div><dt>Business line</dt><dd>Travel</dd></div>
+                <div><dt>Insurer</dt><dd>Aviva</dd></div>
+                <div><dt>Due</dt><dd>Today</dd></div>
+                <div><dt>Assigned to</dt><dd>Marijana Andrevska</dd></div>
+              </dl>
+              <div class="row-options" data-startday-menu-container="act-2">
+                <button class="options-trigger" data-startday-menu-trigger="act-2" type="button" aria-expanded="false">⋯</button>
+                <div class="row-options-menu" data-startday-menu="act-2" role="menu">
+                  <button type="button" role="menuitem" data-startday-action="open-referral">Open referral</button>
+                  <button type="button" role="menuitem" data-startday-action="resolve-issue">Resolve issue</button>
+                </div>
+              </div>
+            </article>
+
+            <article class="start-day-item urgent">
+              <div class="start-day-item-header">
+                <div>
+                  <h4>Record locked</h4>
+                  <p>Renewal could not progress because the record is locked</p>
+                </div>
+                <span class="priority-reason-pill">Workflow blocked</span>
+              </div>
+              <dl class="start-day-item-meta">
+                <div><dt>Renewal type</dt><dd>Invite</dd></div>
+                <div><dt>Business line</dt><dd>Fleet</dd></div>
+                <div><dt>Insurer</dt><dd>Allianz</dd></div>
+                <div><dt>Due</dt><dd>Today</dd></div>
+                <div><dt>Assigned to</dt><dd>Marijana Andrevska</dd></div>
+              </dl>
+              <div class="row-options" data-startday-menu-container="act-3">
+                <button class="options-trigger" data-startday-menu-trigger="act-3" type="button" aria-expanded="false">⋯</button>
+                <div class="row-options-menu" data-startday-menu="act-3" role="menu">
+                  <button type="button" role="menuitem" data-startday-action="open-referral">Open referral</button>
+                  <button type="button" role="menuitem" data-startday-action="retry">Retry</button>
+                  <button type="button" role="menuitem" data-startday-action="view-batch">View batch</button>
+                </div>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section class="panel review-tier-panel">
+          <div class="panel-header">
+            <div>
+              <h3>Needs review today</h3>
+              <p class="subtext">These renewals are not the most critical, but should still be reviewed during today’s work.</p>
+            </div>
+          </div>
+
+          <div class="start-day-item-list review">
+            <article class="start-day-item">
+              <div class="start-day-item-header">
+                <div>
+                  <h4>New referral</h4>
+                  <p>Manual review required for underwriting threshold</p>
+                </div>
+                <span class="priority-reason-pill review">New exception requiring manual review</span>
+              </div>
+              <dl class="start-day-item-meta">
+                <div><dt>Renewal type</dt><dd>Invite</dd></div>
+                <div><dt>Business line</dt><dd>Property Owners</dd></div>
+                <div><dt>Insurer</dt><dd>Zurich</dd></div>
+                <div><dt>Due</dt><dd>In 2 days</dd></div>
+                <div><dt>Assigned to</dt><dd>Unassigned</dd></div>
+              </dl>
+              <div class="row-options" data-startday-menu-container="review-1">
+                <button class="options-trigger" data-startday-menu-trigger="review-1" type="button" aria-expanded="false">⋯</button>
+                <div class="row-options-menu" data-startday-menu="review-1" role="menu">
+                  <button type="button" role="menuitem" data-startday-action="open-referral">Open referral</button>
+                  <button type="button" role="menuitem" data-startday-action="assign-owner">Assign owner</button>
+                </div>
+              </div>
+            </article>
+
+            <article class="start-day-item">
+              <div class="start-day-item-header">
+                <div>
+                  <h4>Higher-than-usual batch exceptions</h4>
+                  <p>Batch RN-2053 contains 8 referred renewals</p>
+                </div>
+                <span class="priority-reason-pill review">Exception volume above normal</span>
+              </div>
+              <dl class="start-day-item-meta">
+                <div><dt>Renewal type</dt><dd>Lapse</dd></div>
+                <div><dt>Business line</dt><dd>Open Market Household</dd></div>
+                <div><dt>Insurer</dt><dd>AXA</dd></div>
+                <div><dt>Due</dt><dd>Today</dd></div>
+                <div><dt>Assigned to</dt><dd>Marijana Andrevska</dd></div>
+              </dl>
+              <div class="row-options" data-startday-menu-container="review-2">
+                <button class="options-trigger" data-startday-menu-trigger="review-2" type="button" aria-expanded="false">⋯</button>
+                <div class="row-options-menu" data-startday-menu="review-2" role="menu">
+                  <button type="button" role="menuitem" data-startday-action="view-batch">View batch</button>
+                  <button type="button" role="menuitem" data-startday-action="open-related-referrals">Open related referrals</button>
+                </div>
+              </div>
+            </article>
+
+            <article class="start-day-item">
+              <div class="start-day-item-header">
+                <div>
+                  <h4>Accept in progress with risk</h4>
+                  <p>Renewal has progressed but may require manual follow-up</p>
+                </div>
+                <span class="priority-reason-pill review">In progress with unresolved dependency</span>
+              </div>
+              <dl class="start-day-item-meta">
+                <div><dt>Renewal type</dt><dd>Accept</dd></div>
+                <div><dt>Business line</dt><dd>Gadget</dd></div>
+                <div><dt>Insurer</dt><dd>AXA</dd></div>
+                <div><dt>Due</dt><dd>Tomorrow</dd></div>
+                <div><dt>Assigned to</dt><dd>Marijana Andrevska</dd></div>
+              </dl>
+              <div class="row-options" data-startday-menu-container="review-3">
+                <button class="options-trigger" data-startday-menu-trigger="review-3" type="button" aria-expanded="false">⋯</button>
+                <div class="row-options-menu" data-startday-menu="review-3" role="menu">
+                  <button type="button" role="menuitem" data-startday-action="open-renewal">Open renewal</button>
+                </div>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        <section class="panel start-day-calm-panel">
+          <h3>Can safely wait</h3>
+          <p class="subtext">These renewals appear to be progressing normally and do not need immediate action.</p>
+          <p id="healthyRenewalsSummary" class="start-day-healthy-summary">42 renewals are currently progressing as expected across Invite, Accept, and Lapse stages.</p>
+          <div class="start-day-healthy-groups">
+            <span>Invite progressing normally</span>
+            <span>Accept progressing normally</span>
+            <span>Lapse progressing normally</span>
+          </div>
+          <button class="text-action-btn" data-startday-action="view-healthy-renewals" type="button">View all healthy renewals</button>
+        </section>
+
+        <section class="panel start-day-signals-panel">
+          <h3>Why these were prioritised</h3>
+          <p class="subtext">This view is based on operational risk signals, including re-referrals, blocked renewals, failed actions, record locks, due dates, and exception volume.</p>
+          <div class="start-day-signal-grid">
+            <span class="signal-chip">Re-referred after prior intervention</span>
+            <span class="signal-chip">Blocked and due today</span>
+            <span class="signal-chip">Record locked</span>
+            <span class="signal-chip">Failed action</span>
+            <span class="signal-chip">High exception batch</span>
+            <span class="signal-chip">Unassigned urgent item</span>
+          </div>
+        </section>
       </section>
 
 
