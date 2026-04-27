@@ -1637,9 +1637,13 @@ body.modal-open {
   }
 }
 
-.start-day-view {
-  display: grid;
+.view.start-day-view {
+  display: none;
   gap: 18px;
+}
+
+.view.start-day-view.active-view {
+  display: grid;
 }
 
 .start-day-header-panel {
