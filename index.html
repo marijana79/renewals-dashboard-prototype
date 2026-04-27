@@ -33,6 +33,19 @@
       </header>
 
       <section id="overviewView" class="view active-view">
+        <section class="morning-briefing panel" aria-label="Morning briefing">
+          <div class="morning-briefing-main">
+            <p class="morning-briefing-kicker">Morning Briefing</p>
+            <h2 class="morning-briefing-message">Good morning. Here is what needs attention today.</h2>
+            <ul id="morningBriefingSummary" class="morning-briefing-summary" aria-live="polite"></ul>
+          </div>
+          <div class="morning-briefing-actions">
+            <button id="startMyDayBtn" class="primary-btn start-day-btn" type="button">Start my day</button>
+            <button id="resetDayViewBtn" class="text-action-btn briefing-reset-btn" type="button" hidden>Return to default queue</button>
+            <p id="startDayStatus" class="morning-briefing-status" aria-live="polite"></p>
+          </div>
+        </section>
+
         <section class="overview-filters panel" aria-label="Overview filters">
           <div class="overview-filter-field">
             <label class="field-label" for="timeFilter">Time</label>
