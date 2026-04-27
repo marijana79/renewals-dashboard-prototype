@@ -523,11 +523,30 @@ let selectedRenewalId = null;
 
 const routeToView = {
   overview: "overviewView",
-  startMyDay: "startMyDayView",
-  batchHealth: "batchHealthView",
+  "start-my-day": "startMyDayView",
+  "batch-health": "batchHealthView",
   reports: "reportsView",
   referrals: "referralsView"
 };
+
+function normalizeRouteName(routeName) {
+  const rawRoute = (routeName || "").toString().trim();
+  if (!rawRoute) return "overview";
+
+  const aliasMap = {
+    overview: "overview",
+    reports: "reports",
+    referrals: "referrals",
+    "start-my-day": "start-my-day",
+    startMyDay: "start-my-day",
+    startmyday: "start-my-day",
+    "batch-health": "batch-health",
+    batchHealth: "batch-health",
+    batchhealth: "batch-health"
+  };
+
+  return aliasMap[rawRoute] || aliasMap[rawRoute.toLowerCase()] || "overview";
+}
 
 const renewalList = document.getElementById("renewalList");
 const detailContent = document.getElementById("detailContent");
@@ -1235,31 +1254,34 @@ function renderReportsView() {
 }
 
 function switchView(routeName) {
-  const viewId = routeToView[routeName] || routeToView.overview;
+  const normalizedRoute = normalizeRouteName(routeName);
+  const viewId = routeToView[normalizedRoute] || routeToView.overview;
   document.querySelectorAll(".view").forEach((view) => view.classList.remove("active-view"));
   document.querySelectorAll(".nav-item").forEach((button) => button.classList.remove("active"));
 
   const viewEl = document.getElementById(viewId);
-  const navEl = document.querySelector(`.nav-item[data-route="${routeName}"]`) || document.querySelector('.nav-item[data-route="overview"]');
+  const navEl =
+    document.querySelector(`.nav-item[data-route="${normalizedRoute}"]`) ||
+    document.querySelector(`.nav-item[data-route="${routeName}"]`) ||
+    document.querySelector('.nav-item[data-route="overview"]');
   if (viewEl) viewEl.classList.add("active-view");
   if (navEl) navEl.classList.add("active");
 
-  if (routeName === "reports") {
+  if (normalizedRoute === "reports") {
     renderReportsView();
   }
-  if (routeName === "referrals") {
+  if (normalizedRoute === "referrals") {
     renderReferralsWorkspace();
   }
 }
 
 function getRouteFromHash() {
   const raw = location.hash.replace("#", "").trim();
-  if (!raw) return "overview";
-  return routeToView[raw] ? raw : "overview";
+  return normalizeRouteName(raw);
 }
 
 function setRoute(routeName) {
-  const route = routeToView[routeName] ? routeName : "overview";
+  const route = normalizeRouteName(routeName);
   if (location.hash.replace("#", "") !== route) {
     location.hash = route;
   } else {
@@ -1464,7 +1486,7 @@ queueAppliedFilters?.addEventListener("click", (event) => {
 
 startMyDayBtn?.addEventListener("click", () => {
   isPriorityDayMode = true;
-  setRoute("startMyDay");
+  setRoute("start-my-day");
   setStartDayStatus("Start my day workspace is ready with prioritised actions.");
   if (resetDayViewBtn) resetDayViewBtn.hidden = false;
 });
